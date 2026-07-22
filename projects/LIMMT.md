@@ -166,8 +166,8 @@ python -m projects.gqs.global_weighted_fps \
     --mocap_dir storage/mocap/amass_train_pass \
     --hme_ckpt storage/hme_ckpt/amass.pt \
     --output_base_dir storage/mocap/amass_selected \
-    --selection_ratio 0.2 \
-    --alpha 0.6
+    --selection_ratio 0.1 \
+    --alpha 0.99
 ```
 
 <details>

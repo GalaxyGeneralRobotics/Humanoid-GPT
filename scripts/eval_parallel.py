@@ -22,7 +22,8 @@ from tracking.metrics import (
     calculate_joint_tracking_error,
     calculate_kpt_mae_error,
     calculate_root_tracking_error,
-    calculate_trajectory_length
+    calculate_trajectory_length,
+    calculate_joint_jerk,
 )
 
 
@@ -36,8 +37,8 @@ if sys.platform.startswith("linux"):
 
 @dataclass
 class ParallelEvalArgs(Args):
-    load_path: str = "storage/ckpt/amass.onnx"
-    mocap_path: str = "storage/test/1"
+    onnx_track: str = "storage/ckpt/amass.onnx"
+    track_dir: str = "storage/test/1"
     privileged: bool = False
     num_envs: int = 1
     device: str = "cpu"
@@ -77,8 +78,8 @@ def _convert_traj_to_kpt(data: Dict, mj_model: mujoco.MjModel, freq_tgt: int) ->
 
 
 def _build_policy(args: ParallelEvalArgs):
-    if not args.load_path.endswith(".onnx"):
-        raise ValueError(f"Unsupported load_path format: {args.load_path} (expected .onnx)")
+    if not args.onnx_track.endswith(".onnx"):
+        raise ValueError(f"Unsupported onnx_track format: {args.onnx_track} (expected .onnx)")
     return get_policy_onnx(args)
 
 
@@ -151,6 +152,7 @@ def _evaluate_single_traj(
     avg_root_pos_error = np.mean(traj_metrics["root_pos_errors"])
     avg_root_vel_error = np.mean(traj_metrics["root_vel_errors"])
     avg_root_yaw_error = np.mean(traj_metrics["root_yaw_errors"])
+    avg_joint_jerk = calculate_joint_jerk(traj_metrics["state_history"], env_cfg.ctrl_dt)
 
     logging.info(f"  Trajectory {traj_id} completed:")
     logging.info(f"    Completion: {traj_length_ratio:.4f} ({termination_step}/{actual_trajectory_length} steps)")
@@ -161,6 +163,7 @@ def _evaluate_single_traj(
     logging.info(f"    Root Pos Error: {avg_root_pos_error:.3f} mm")
     logging.info(f"    Root Vel Error: {avg_root_vel_error:.3f} mm/s")
     logging.info(f"    Root Yaw Error: {avg_root_yaw_error:.6f} rad")
+    logging.info(f"    Joint Jerk: {avg_joint_jerk:.3f} rad/s^3")
 
     return {
             "traj_id": traj_id,
@@ -173,6 +176,7 @@ def _evaluate_single_traj(
             "root_pos_err_mm": avg_root_pos_error,
             "root_vel_err_mms": avg_root_vel_error,
             "root_yaw_err": avg_root_yaw_error,
+            "joint_jerk": avg_joint_jerk,
         }
 
 
@@ -199,7 +203,7 @@ def _parallel_worker(args_tuple: Tuple[int, Dict, str, ParallelEvalArgs]) -> Dic
 
 def main(args: ParallelEvalArgs):
 
-    data_path = Path(args.mocap_path)
+    data_path = Path(args.track_dir)
     if data_path.is_file():
         traj_files = [data_path]
     elif data_path.is_dir():
@@ -246,7 +250,8 @@ def main(args: ParallelEvalArgs):
         avg_root_pos = np.mean([m["root_pos_err_mm"] for m in all_metrics])
         avg_root_vel = np.mean([m["root_vel_err_mms"] for m in all_metrics])
         avg_root_yaw = np.mean([m["root_yaw_err"] for m in all_metrics])
-        
+        avg_joint_jerk = np.mean([m["joint_jerk"] for m in all_metrics])
+
         # Calculate Success Rate (trajectories with length_ratio >= 1.0 are considered successful)
         successful_trajs = sum(1 for m in all_metrics if m["length_ratio"] >= 1.0)
         success_rate = successful_trajs / len(all_metrics) if all_metrics else 0.0
@@ -260,6 +265,7 @@ def main(args: ParallelEvalArgs):
         logging.info(f"Average Root Pos Error: {avg_root_pos:.3f} mm")
         logging.info(f"Average Root Vel Error: {avg_root_vel:.3f} mm/s")
         logging.info(f"Average Root Yaw Error: {avg_root_yaw:.6f} rad")
+        logging.info(f"Average Joint Jerk: {avg_joint_jerk:.3f} rad/s^3")
 
     return all_metrics
 

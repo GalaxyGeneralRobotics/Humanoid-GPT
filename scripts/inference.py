@@ -33,14 +33,15 @@ from tracking.metrics import (
     calculate_joint_tracking_error,
     calculate_max_errors,
     calculate_root_tracking_error,
-    calculate_trajectory_length
+    calculate_trajectory_length,
+    calculate_joint_jerk,
 )
 
 
 @dataclass
 class InferenceArgs(Args):
-    load_path: str = "storage/ckpt/amass.onnx"
-    mocap_path: str = "storage/test"
+    onnx_track: str = "storage/ckpt/amass.onnx"
+    track_dir: str = "storage/test"
     privileged: bool = False
     video_path: str = None
     headless: bool = False
@@ -88,7 +89,7 @@ def _convert_traj_to_kpt(data: dict, mj_model: mujoco.MjModel, freq_tgt: int) ->
 def main(args: InferenceArgs):
     env_cfg = g1_infer_env_config(ctrl_dt = 1 / args.freq)
 
-    data_path = Path(args.mocap_path)
+    data_path = Path(args.track_dir)
     if data_path.is_file():
         traj_files = [data_path]
     elif data_path.is_dir():
@@ -114,8 +115,8 @@ def main(args: InferenceArgs):
     _init_qpos[:2] = 0.0
     mj_sim = G1TrackMjSim(init_qpos=_init_qpos, headless=args.headless, ctrl_dt=env_cfg.ctrl_dt)
 
-    if not args.load_path.endswith(".onnx"):
-        raise ValueError(f"Unsupported load_path format: {args.load_path} (expected .onnx)")
+    if not args.onnx_track.endswith(".onnx"):
+        raise ValueError(f"Unsupported onnx_track format: {args.onnx_track} (expected .onnx)")
     policy = get_policy_onnx(args)
 
     infer_fn = G1TrackInferFn(env_cfg, mj_sim.mj_model, policy, privileged=args.privileged)
@@ -232,7 +233,8 @@ def main(args: InferenceArgs):
         avg_root_pos_error = np.mean(traj_metrics['root_pos_errors'])
         avg_root_vel_error = np.mean(traj_metrics['root_vel_errors'])
         avg_root_yaw_error = np.mean(traj_metrics['root_yaw_errors'])
-        
+        avg_joint_jerk = calculate_joint_jerk(traj_metrics['state_history'], env_cfg.ctrl_dt)
+
         # Calculate max errors
         max_errors = calculate_max_errors(traj_metrics)
 
@@ -246,6 +248,7 @@ def main(args: InferenceArgs):
         logging.info(f"    Root Pos Error: {avg_root_pos_error:.3f} mm (Max: {max_errors['max_root_pos_error']:.3f} mm)")
         logging.info(f"    Root Vel Error: {avg_root_vel_error:.3f} mm/s (Max: {max_errors['max_root_vel_error']:.3f} mm/s)")
         logging.info(f"    Root Yaw Error: {avg_root_yaw_error:.6f} rad (Max: {max_errors['max_root_yaw_error']:.6f} rad)")
+        logging.info(f"    Joint Jerk: {avg_joint_jerk:.3f} rad/s^3")
 
         # Store metrics
         all_metrics.append({
@@ -259,6 +262,7 @@ def main(args: InferenceArgs):
             'root_pos_err_mm': avg_root_pos_error,
             'root_vel_err_mms': avg_root_vel_error,
             'root_yaw_err': avg_root_yaw_error,
+            'joint_jerk': avg_joint_jerk,
             'max_kpt_pos_error': max_errors['max_kpt_pos_error'],
             'max_kpt_rot_error': max_errors['max_kpt_rot_error'],
             'max_joint_pos_error': max_errors['max_joint_pos_error'],
@@ -279,7 +283,8 @@ def main(args: InferenceArgs):
         avg_root_pos = np.mean([m['root_pos_err_mm'] for m in all_metrics])
         avg_root_vel = np.mean([m['root_vel_err_mms'] for m in all_metrics])
         avg_root_yaw = np.mean([m['root_yaw_err'] for m in all_metrics])
-        
+        avg_joint_jerk = np.mean([m['joint_jerk'] for m in all_metrics])
+
         # Calculate average max errors across all trajectories
         avg_max_kpt_pos = np.mean([m['max_kpt_pos_error'] for m in all_metrics])
         avg_max_kpt_rot = np.mean([m['max_kpt_rot_error'] for m in all_metrics])
@@ -297,6 +302,7 @@ def main(args: InferenceArgs):
         logging.info(f"Average Root Pos Error: {avg_root_pos:.3f} mm (Max: {avg_max_root_pos:.3f} mm)")
         logging.info(f"Average Root Vel Error: {avg_root_vel:.3f} mm/s (Max: {avg_max_root_vel:.3f} mm/s)")
         logging.info(f"Average Root Yaw Error: {avg_root_yaw:.6f} rad (Max: {avg_max_root_yaw:.6f} rad)")
+        logging.info(f"Average Joint Jerk: {avg_joint_jerk:.3f} rad/s^3")
 
     if args.video_path is not None:
         images_to_video(

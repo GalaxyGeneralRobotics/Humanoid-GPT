@@ -187,7 +187,7 @@ def _retarget_worker_with_brainco_hands(
             pass
 
     from deploy.brainco.noitom_hand_retarget import _retarget_noitom_hand_qpos
-    from general_motion_retargeting import GeneralMotionRetargeting as GMR
+    from gmr import GeneralMotionRetargeting as GMR
 
     if (mocap_type or "").lower() == "pnlink":
         from noitom import NoitomClient
@@ -518,7 +518,7 @@ def run_real(args: "NaoDeployArgs"):
     ctrl_dt = 1.0 / freq
     env_cfg = g1_infer_env_config(ctrl_dt=ctrl_dt)
 
-    policy_args = PolicyArgs(load_path=args.onnx_track, policy_type=args.policy_type)
+    policy_args = PolicyArgs(onnx_track=args.onnx_track)
     track_policy = get_policy_onnx(policy_args, use_trt=True, strict_trt=True)
     walk_policy = WalkPolicy(args.onnx_walk)
 
@@ -541,37 +541,45 @@ def run_real(args: "NaoDeployArgs"):
     low_ctrl = LowLevelControlG1(ctrl_dt=ctrl_dt, debug=args.debug)
 
     xml_path = str(consts.ROOT_PATH / "scene_mjx_track.xml")
-    phantom_model = mujoco.MjModel.from_xml_path(xml_path)
+    phantom_model = consts.load_mj_model(xml_path)
     phantom_model.opt.timestep = 0.001
 
     infer_fn = G1TrackInferFn(env_cfg, phantom_model, track_policy, privileged=False)
     live_converter = LiveRefConverter(phantom_model, ctrl_dt)
 
-    buf_mocap, ts_mocap, buf_hand, buf_hand_qpos = start_realtime_retarget_with_brainco_hands(
-        robot="unitree_g1",
-        dof_full=7 + 29,
-        actual_human_height=args.human_height,
-        visualize_retarget=args.visualize_retarget,
-        mocap_type="pnlink",
-        buffer_ms=args.buffer_ms,
-        hand_target=args.hand_target,
-    )
-    mocap_buffer = MocapBuffer(buf_mocap, ts_mocap)
+    mocap_buffer = None
+    buf_hand_qpos = None
+    if not args.no_mocap:
+        try:
+            buf_mocap, ts_mocap, _, buf_hand_qpos = start_realtime_retarget_with_brainco_hands(
+                robot="unitree_g1",
+                dof_full=7 + 29,
+                actual_human_height=args.human_height,
+                visualize_retarget=args.visualize_retarget,
+                mocap_type="pnlink",
+                buffer_ms=args.buffer_ms,
+                hand_target=args.hand_target,
+            )
+            mocap_buffer = MocapBuffer(buf_mocap, ts_mocap)
+            print("[Mocap] BrainCo retarget subprocess started.")
+        except Exception as e:
+            print(f"[Mocap] Failed to start BrainCo retarget: {e}. Online mode disabled.")
+    else:
+        print("[Mocap] Disabled (--no-mocap). Online mode disabled.")
 
     hand_ctrl = None
     hand_smoother = BraincoHandSmoother(
         alpha=args.brainco_hand_smooth_alpha,
         scale=args.brainco_hand_scale,
     )
-    if args.enable_brainco_hand:
-        try:
-            hand_ctrl = BraincoController(fps=args.brainco_hand_fps)
-            rest = hand_smoother.reset()
-            hand_ctrl.set_action({"qpos": rest})
-            print("[BrainCo] Hand controller ready.")
-        except Exception as e:
-            print(f"[BrainCo] Failed to init hand controller: {e}")
-            hand_ctrl = None
+    try:
+        hand_ctrl = BraincoController(fps=args.brainco_hand_fps)
+        rest = hand_smoother.reset()
+        hand_ctrl.set_action({"qpos": rest})
+        print("[BrainCo] Hand controller ready.")
+    except Exception as e:
+        print(f"[BrainCo] Failed to init hand controller: {e}")
+        hand_ctrl = None
 
     last_mode = 0
     track_step = 0
@@ -608,6 +616,8 @@ def run_real(args: "NaoDeployArgs"):
                     ref_traj = ref_motions[traj_idx]["data"]
                     hand_traj = hand_motions[traj_idx]["data"]
                     track_step = 0
+            elif mode == 1 and mocap_buffer is None:
+                print("[Track] Online retarget unavailable (--no-mocap or init failed)")
 
         if leaving_track:
             live_converter.reset()
@@ -622,6 +632,9 @@ def run_real(args: "NaoDeployArgs"):
                 set_hand_rest()
         else:
             if mode == 1:
+                if mocap_buffer is None:
+                    last_mode = mode
+                    return
                 qpos_full, _ = mocap_buffer.read()
                 ref_new = live_converter.convert(qpos_full)
                 ref_curr = ref_new if prev_online_ref is None else prev_online_ref
@@ -710,7 +723,6 @@ class NaoDeployArgs:
     onnx_walk: str = "storage/ckpts/G1-Walk/07140632_G1-Walk_v2.0.0_baseline.onnx"
     track_dir: str = "storage/test"
     onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
-    policy_type: str = "mlp"
     convert_xml_path: str = str(consts.TRACK_XML)
     real: bool = False
     debug: bool = False
@@ -725,10 +737,8 @@ class NaoDeployArgs:
 
     # Real robot
     net: str = "enx6c1ff76e8ef5"
-    enable_hand: bool = False
 
     # BrainCo hand additions.  These are only used by this module's real path.
-    enable_brainco_hand: bool = True
     hand_target: str = "brainco2"
     brainco_hand_fps: int = 100
     brainco_hand_smooth_alpha: float = 0.45
@@ -741,7 +751,6 @@ def _to_play_track_args(args: NaoDeployArgs) -> PlayTrackArgs:
         onnx_walk=args.onnx_walk,
         track_dir=args.track_dir,
         onnx_track=args.onnx_track,
-        policy_type=args.policy_type,
         convert_xml_path=args.convert_xml_path,
         real=False,
         debug=args.debug,
@@ -752,7 +761,6 @@ def _to_play_track_args(args: NaoDeployArgs) -> PlayTrackArgs:
         visualize_retarget=args.visualize_retarget,
         buffer_ms=args.buffer_ms,
         net=args.net,
-        enable_hand=args.enable_hand,
     )
 
 

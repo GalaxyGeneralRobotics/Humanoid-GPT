@@ -168,10 +168,9 @@ def _get_mj_sim(init_qpos: np.ndarray, friction: float = 1.0, ctrl_dt: float = 0
 def parse_cli_defaults() -> argparse.Namespace:
     """Allow overriding the initial UI defaults via CLI without requiring any arguments."""
     parser = argparse.ArgumentParser(description="Gradio UI for Humanoid-GPT inference")
-    parser.add_argument("--load_path", default=DEFAULTS.load_path)
-    parser.add_argument("--policy_type", default=DEFAULTS.policy_type, choices=["mlp"])
+    parser.add_argument("--onnx_track", default=DEFAULTS.onnx_track)
     parser.add_argument("--privileged", action="store_true", default=DEFAULTS.privileged)
-    parser.add_argument("--mocap_path", default=DEFAULTS.mocap_path)
+    parser.add_argument("--track_dir", default=DEFAULTS.track_dir)
     parser.add_argument("--freq", type=int, default=DEFAULTS.freq)
     return parser.parse_args()
 
@@ -184,8 +183,8 @@ def prepare_run_id():
     return run_id
 
 
-def _prepare_traj_data(mocap_path: str, convert_mj_model: mujoco.MjModel, freq_tgt: int):
-    data_path = Path(mocap_path)
+def _prepare_traj_data(track_dir: str, convert_mj_model: mujoco.MjModel, freq_tgt: int):
+    data_path = Path(track_dir)
     if data_path.is_file():
         traj_files = [data_path]
     elif data_path.is_dir():
@@ -211,8 +210,8 @@ def _boot_viewer_at_start(defaults: argparse.Namespace):
         merged = {**DEFAULTS.__dict__, **vars(defaults)}
         args = InferenceArgs(**merged)
         convert_mj_model = mujoco.MjModel.from_xml_path(args.convert_xml_path)
-        traj_data, _, _ = _prepare_traj_data(args.mocap_path, convert_mj_model, args.freq)
-        _init_qpos = traj_data[0]["qpos"][0]
+        traj_data, _, _ = _prepare_traj_data(args.track_dir, convert_mj_model, args.freq)
+        _init_qpos = traj_data[0]["qpos"][0].copy()
         _init_qpos[:2] = 0.0
         _get_mj_sim(_init_qpos, ctrl_dt=1 / args.freq)
     except Exception:
@@ -221,10 +220,9 @@ def _boot_viewer_at_start(defaults: argparse.Namespace):
 
 def run_inference_gradio(
         run_id,
-        load_path,
-        policy_type,
+        onnx_track,
         privileged,
-        mocap_path,
+        track_dir,
         freq,
         floor_friction,
         save_video,
@@ -250,10 +248,9 @@ def run_inference_gradio(
 
         freq = int(freq) if freq else DEFAULTS.freq
         args = InferenceArgs(
-            load_path=load_path or DEFAULTS.load_path,
-            policy_type=policy_type or DEFAULTS.policy_type,
+            onnx_track=onnx_track or DEFAULTS.onnx_track,
             privileged=bool(privileged),
-            mocap_path=mocap_path or DEFAULTS.mocap_path,
+            track_dir=track_dir or DEFAULTS.track_dir,
             freq=freq,
             headless=False,
         )
@@ -269,7 +266,7 @@ def run_inference_gradio(
             return
 
         convert_mj_model = mujoco.MjModel.from_xml_path(args.convert_xml_path)
-        traj_data, data_path, traj_files = _prepare_traj_data(args.mocap_path, convert_mj_model, args.freq)
+        traj_data, data_path, traj_files = _prepare_traj_data(args.track_dir, convert_mj_model, args.freq)
         total_steps = sum(len(traj["qpos"]) for traj in traj_data)
         if total_steps == 0:
             raise ValueError("Reference trajectories are empty.")
@@ -279,7 +276,7 @@ def run_inference_gradio(
             yield DEFAULT_OUTPUT
             return
 
-        _init_qpos = traj_data[0]["qpos"][0]
+        _init_qpos = traj_data[0]["qpos"][0].copy()
         _init_qpos[:2] = 0.0
         mj_sim, state = _get_mj_sim(_init_qpos, friction=floor_friction, ctrl_dt=1 / args.freq)
         ctrl_rate = RateLimiter(frequency=args.freq, warn=False)
@@ -296,8 +293,8 @@ def run_inference_gradio(
             yield DEFAULT_OUTPUT
             return
 
-        if not args.load_path.endswith(".onnx"):
-            raise ValueError(f"Unsupported load_path format: {args.load_path} (expected .onnx)")
+        if not args.onnx_track.endswith(".onnx"):
+            raise ValueError(f"Unsupported onnx_track format: {args.onnx_track} (expected .onnx)")
         policy = get_policy_onnx(args)
 
         # Final check before starting inference
@@ -316,8 +313,9 @@ def run_inference_gradio(
                 return
             ref_traj = traj_data[traj_id]
             traj_len = len(ref_traj["qpos"])
+            ref_start_xy = ref_traj["qpos"][0, :2].copy()
 
-            _init_qpos = ref_traj["qpos"][0]
+            _init_qpos = ref_traj["qpos"][0].copy()
             _init_qpos[:2] = 0.0
             mj_sim.init_qpos[:] = _init_qpos
             state = mj_sim.reset(state)
@@ -379,7 +377,9 @@ def run_inference_gradio(
                 )
 
                 if ref_ghost is not None:
-                    ref_ghost.set_qpos(ref_curr["qpos"][0])
+                    ghost_qpos = ref_curr["qpos"][0].copy()
+                    ghost_qpos[:2] -= ref_start_xy
+                    ref_ghost.set_qpos(ghost_qpos)
                     viewer = getattr(mj_sim, "viewer", None)
                     if viewer is not None:
                         ref_ghost.reset_scene(viewer.user_scn)
@@ -521,15 +521,10 @@ def build_interface(defaults: argparse.Namespace) -> gr.Blocks:
         gr.Markdown("# Humanoid-GPT Gradio Inference\nLive metrics and viewer.")
         run_id_state = gr.State("")
         with gr.Row():
-            load_path_box = gr.Textbox(label="load_path", value=defaults.load_path)
-            policy_type_box = gr.Dropdown(
-                label="policy_type",
-                choices=["mlp"],
-                value=defaults.policy_type,
-            )
+            onnx_track_box = gr.Textbox(label="onnx_track", value=defaults.onnx_track)
         with gr.Row():
             privileged_box = gr.Checkbox(label="privileged", value=defaults.privileged)
-            mocap_path_box = gr.Textbox(label="mocap_path", value=defaults.mocap_path)
+            track_dir_box = gr.Textbox(label="track_dir", value=defaults.track_dir)
             freq_box = gr.Number(label="freq (Hz)", value=defaults.freq, precision=0)
 
         with gr.Row():
@@ -548,7 +543,7 @@ def build_interface(defaults: argparse.Namespace) -> gr.Blocks:
             )
             show_ref_ghost_checkbox = gr.Checkbox(
                 label="ref ghost",
-                value=False,
+                value=True,
                 info="Overlay reference motion as a red translucent ghost"
             )
 
@@ -586,7 +581,7 @@ def build_interface(defaults: argparse.Namespace) -> gr.Blocks:
             queue=False,
         ).then(
             run_inference_gradio,
-            inputs=[run_id_state, load_path_box, policy_type_box, privileged_box, mocap_path_box, freq_box,
+            inputs=[run_id_state, onnx_track_box, privileged_box, track_dir_box, freq_box,
                     floor_friction_slider, save_video_checkbox, show_ref_ghost_checkbox],
             outputs=[
                 progress_bar,
@@ -632,7 +627,7 @@ def _enable_queue(app: gr.Blocks, concurrency: int = 1, max_size: int | None = N
 if __name__ == "__main__":
     # Handle Ctrl+C: force exit immediately
     def signal_handler(sig, frame):
-        print("\n收到 Ctrl+C，强制退出...")
+        print("\nReceived Ctrl+C, forcing exit...")
         os._exit(1)
 
 

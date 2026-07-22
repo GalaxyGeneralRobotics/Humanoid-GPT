@@ -1,0 +1,576 @@
+{
+    "robot_root_name": "pelvis",
+    "human_root_name": "Hips",
+    "ground_height": 0.03,
+    "human_height_assumption": 1.8,
+    "use_ik_match_table1": true,
+    "use_ik_match_table2": true,
+    "human_scale_table": {
+        "Hips": 0.9,
+        "Spine": 0.9,
+        "LeftUpLeg": 0.9,
+        "RightUpLeg": 0.9,
+        "LeftLeg": 0.9,
+        "RightLeg": 0.9,
+        "LeftFootMod": 0.9,
+        "RightFootMod": 0.9,
+        "LeftArm": 0.75,
+        "RightArm": 0.75,
+        "LeftForeArm": 0.75,
+        "RightForeArm": 0.75,
+        "LeftHand": 0.75,
+        "RightHand": 0.75
+    },
+    "ik_match_table1": {
+        "pelvis": [
+            "Hips",
+            0.0,
+            11.8885,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_hip_yaw_link": [
+            "LeftUpLeg",
+            0.0,
+            9.6399,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_knee_link": [
+            "LeftLeg",
+            0.0,
+            9.6399,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_ankle_roll_link": [
+            "LeftFootMod",
+            91.8528,
+            17.3884,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_hip_yaw_link": [
+            "RightUpLeg",
+            0.0,
+            9.6399,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_knee_link": [
+            "RightLeg",
+            0.0,
+            9.6399,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_ankle_roll_link": [
+            "RightFootMod",
+            91.8528,
+            17.3884,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "torso_link": [
+            "Spine",
+            0.0,
+            204.3346,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_shoulder_yaw_link": [
+            "LeftArm",
+            0.0,
+            27.2513,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.70710678,
+                0.70710678,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_elbow_link": [
+            "LeftForeArm",
+            0.0,
+            6.5143,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.5,
+                0.5,
+                0.5,
+                0.5
+            ]
+        ],
+        "left_wrist_yaw_link": [
+            "LeftHand",
+            0.0,
+            9.0041,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.5,
+                0.5,
+                0.5,
+                0.5
+            ]
+        ],
+        "right_shoulder_yaw_link": [
+            "RightArm",
+            0.0,
+            27.2513,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                -0.70710678,
+                0.70710678,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_elbow_link": [
+            "RightForeArm",
+            0.0,
+            6.5143,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                -0.5,
+                0.5,
+                -0.5,
+                0.5
+            ]
+        ],
+        "right_wrist_yaw_link": [
+            "RightHand",
+            0.0,
+            9.0041,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                -0.5,
+                0.5,
+                -0.5,
+                0.5
+            ]
+        ]
+    },
+    "ik_match_table2": {
+        "pelvis": [
+            "Hips",
+            2.6268,
+            11.8885,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_hip_yaw_link": [
+            "LeftUpLeg",
+            18.0539,
+            4.82,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_knee_link": [
+            "LeftLeg",
+            18.0539,
+            4.82,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_ankle_roll_link": [
+            "LeftFootMod",
+            91.8528,
+            17.3884,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_hip_yaw_link": [
+            "RightUpLeg",
+            18.0539,
+            4.82,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_knee_link": [
+            "RightLeg",
+            18.0539,
+            4.82,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_ankle_roll_link": [
+            "RightFootMod",
+            91.8528,
+            17.3884,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "torso_link": [
+            "Spine",
+            0.0,
+            613.0038,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_shoulder_yaw_link": [
+            "LeftArm",
+            10.8655,
+            6.5143,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.70710678,
+                0.70710678,
+                0.0,
+                0.0
+            ]
+        ],
+        "left_elbow_link": [
+            "LeftForeArm",
+            21.731,
+            3.2572,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.5,
+                0.5,
+                0.5,
+                0.5
+            ]
+        ],
+        "left_wrist_yaw_link": [
+            "LeftHand",
+            10.7396,
+            4.502,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.5,
+                0.5,
+                0.5,
+                0.5
+            ]
+        ],
+        "right_shoulder_yaw_link": [
+            "RightArm",
+            10.8655,
+            6.5143,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                -0.70710678,
+                0.70710678,
+                0.0,
+                0.0
+            ]
+        ],
+        "right_elbow_link": [
+            "RightForeArm",
+            21.731,
+            3.2572,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                -0.5,
+                0.5,
+                -0.5,
+                0.5
+            ]
+        ],
+        "right_wrist_yaw_link": [
+            "RightHand",
+            10.7396,
+            4.502,
+            [
+                0.0,
+                0.0,
+                0.0
+            ],
+            [
+                -0.5,
+                0.5,
+                -0.5,
+                0.5
+            ]
+        ]
+    },
+    "_recommended_runtime": {
+        "damping": 0.5,
+        "solver": "daqp",
+        "smooth_window": 85,
+        "smooth_polyorder": 3,
+        "note": "damping/solver -> GeneralMotionRetargeting(...); smooth_window/polyorder -> the savgol post-smoothing step in the export script (savgol_filter window_length=smooth_window). These are runtime/export knobs, not standard IK-config fields. The savgol window is the dominant smoothness knob; damping was found to have no effect (GMR iterates each frame to convergence)."
+    },
+    "_provenance": {
+        "source": "projects.gmr_aug.optimize_config",
+        "base_config": "gmr/ik_configs/bvh_to_g1.json",
+        "note": "left/right-symmetric weights; offsets/quaternions preserved. Tuned for stable+smooth pose: objective = 0.50*smoothness + 0.30*gmr_err2 + 0.20*fidelity, s.t. LIMMT S_phy >= 91.9.",
+        "best_scales": {
+            "root_pos": 0.5253615637444407,
+            "root_rot": 2.377693270093923,
+            "torso_rot": 2.043346022860585,
+            "legs_pos": 1.8053893966842356,
+            "legs_rot": 0.9639905764551006,
+            "feet_pos": 0.6123517377591475,
+            "feet_rot": 1.7388443968121259,
+            "arms_pos": 2.173097393615831,
+            "arms_rot": 0.6514300030095792,
+            "hands_pos": 1.0739575538067194,
+            "hands_rot": 0.9004054613713848
+        },
+        "best_damping": 0.5,
+        "best_window": 85,
+        "metrics": {
+            "score": 96.59516133585174,
+            "gmr_err2": 0.7567331710417426,
+            "pos_err": 0.103350396666842,
+            "rot_err": 0.10146267342200332,
+            "fidelity": 0.15408173337784364,
+            "acc_dof": 0.7945068622600967,
+            "jerk_dof": 10.42712875229907,
+            "acc_root": 1.0142700950161654,
+            "jerk_root": 11.410497733309972,
+            "smooth_r": 0.5053487322517368,
+            "objective": 0.760299873542602
+        },
+        "vs_sym_default": {
+            "score": 96.87970230941387,
+            "gmr_err2": 0.7416612491133123,
+            "fidelity": 0.1565153281051872,
+            "acc_dof": 1.3193322394887688,
+            "jerk_dof": 19.80005633293765
+        },
+        "n_motions": 50,
+        "motions_used": [
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260319_pns_pick&place_bvh/20260319_pm_wufengchao/take076_wufengchao.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260307_pnlink_hand-based interaction_bvh/20260307_am_zhenghuibo/take292_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/\u624b\u90e8\u4ea4\u4e92\u81ea\u7136\u8fc7\u6e21_bvh_9-16\u7ec4/12\u7ec4ok2322-2532/take2496_wufengchao.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260617_pns_dailyactions_bvh/20260617_am_liudongfang/take018_liudongfang.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260429_interaction_bvh/20260429_ok_big scale_liuwenchuan/take009_liuwenchuan.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260313_pnlink_handbased_bvh/take223_puyuehong.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260406_pnlink_handbased_bvh_4001-5060/take4900_xuzekun.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260308_pm_pns_hand_based_bvh/20260308_pm_muxiao/take167_chr02.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260313_pnlink_handbased_bvh/20260313_am_zhangyuefa/take349_zhangyuefa.bvh",
+            "/Users/qizekun/Downloads/bvh/daily_actions/20260314_pnlink_dailyactions_bvh/20260314_allday_cuiweiguo_1/take077_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260412_objects_pm/easy/scene_0001_diff20_seed20261411/motion/bvh/scene_0001_diff20_seed20261411_liuwenchuan_Take_004_20260412_201257.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260607_objects01_pm/easy/scene_0234_diff20_seed21612528/motion/bvh/scene_0234_diff20_seed21612528_lixilong_Take_001_20260607_204206.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260513_objects02_am/hard/scene_0126_diff80_seed20386411/motion/bvh/scene_0126_diff80_seed20386411_liuwenchuan_Take_008_20260513_152714.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260512_objects01_am/hard/scene_0079_diff80_seed20339411/motion/bvh/scene_0079_diff80_seed20339411_liuwenchuan_Take_006_20260512_092933.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260527_objects02_pm/easy/scene_0220_diff20_seed20480411/motion/bvh/scene_0220_diff20_seed20480411_liuwenchuan_Take_003_20260527_222410.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260605_objects01_am/easy/scene_0179_diff20_seed21278528/motion/bvh/scene_0179_diff20_seed21278528_lichangsheng_Take_008_20260605_104022.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260506_objects01_am/easy/scene_0426_diff20_seed20686411/motion/bvh/scene_0426_diff20_seed20686411_quyan_Take_002_20260506_115214.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260617_objects01_pm/medium/scene_0182_diff50_seed20733528/motion/bvh/scene_0182_diff50_seed20733528_fengyanhang_Take_005_20260617_213249.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260402_objects_pm/tasks/medium006/motion/bvh/medium006_zhouhangyang_Take_008_20260402_204516.bvh",
+            "/Users/qizekun/Downloads/bvh/obstacle_avoidance/20260416_objects_pm/easy/scene_0111_diff20_seed20371411/motion/bvh/scene_0111_diff20_seed20371411_liuwenchuan_Take_005_20260416_224025.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/Vlareaching_all/vlareaching_desk_all/20260517_vlareaching_wfcfyh_desk100cm_adj20cm_bvh/take043_wufengchao.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/Vlareaching_all/vlareaching_desk_all/20260517_vlareaching_wfcfyh_desk90cm_adj30cm_bvh/take036_fengyanhang.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/20251218_hands_pm/20251218_liuxianhe_bvh_pns_storagebox_85CM_reaching _hands_pm/take007_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/20260111_pm_pnlink_reaching_clean_bvh/take010_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/20260427_vlareaching_lxlwqh_desk125cm_bvh/take032_liuxilong.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/\u65b0\u5efa\u6587\u4ef6\u5939/20251213_muxiao_bvh_pns_reaching/take303_chr00.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/20260427_vlareaching_lwczyf_smalldask65cm_bvh/20260427_liuwenchuan/take017_liuwenchuan.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/20260426_vareaching_qysme_ground26cm_bvh/take098_sunmengen.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/20260419_vlareaching_wmlljx_ground14cm_bvh/take034_wangminglin.bvh",
+            "/Users/qizekun/Downloads/bvh/reaching/Vlareaching_all/vlareaching_desk_all/20260517_vlareaching_wfcfyh_desk120cm_adj30cm_bvh/take023_wufengchao.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260228/sit-lie/sit-lie_bvh/take063_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260228/burpee/burpee-bvh/take147_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260318_pnlink_ground_movement_bvh/20260318_am_zhouhangyang/stand-sit/take018_zhouhangyang.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260228/sit-lie/sit-lie_bvh/take122_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260228/roll-over/roll-over-bvh/take051_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260318_pnlink_ground movement_bvh/20260318_am_zhenghuibo/stand_sit/take024_zhenghuibo.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260228/sit-lie/sit-lie_bvh/take011_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260228/sit-lie/sit-lie_bvh/take056_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260228/stand-sit/stand-sit_bvh/take051_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/ground_movement/20260318_pnlink_ground movement_bvh/20260318_am_zhenghuibo/lie_sit/take011_zhenghuibo.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260302_pns_wushu/\u5355\u817f\u4f4e\u626b/bvh/take001_chr02.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260318_pnlink_wushu_bvh/20260318_pm_huyufeng/take062_huyufeng.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260306_pns_wushu/\u591a\u6b21\u65cb\u8f6c\u8fde\u8e22/bvh/take007_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260302_pns_wushu/\u5355\u817f\u62ac\u819d\u8bd5\u63a2/bvh/take018_chr02.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260305_pns_wushu/\u5355\u817f\u524d\u8e22/bvh/take001_chr01.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260318_pnlink_wushu_bvh/20260318_pm_huyufeng/take026_huyufeng.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260302_pns_wushu/\u62f3\u51fb\u6447\u6446\u6b65/bvh/take002_chr02.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260302_pns_wushu/\u5355\u817f\u65cb\u8f6c/bvh/take004_chr02.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260302_pns_wushu/\u56fa\u5b9a\u4e09\u8fde\u8e22/bvh/take002_chr02.bvh",
+            "/Users/qizekun/Downloads/bvh/martial_arts/20260302_pns_wushu/\u53cc\u817f\u9ad8\u8df3/bvh/take020_chr02.bvh"
+        ]
+    }
+}

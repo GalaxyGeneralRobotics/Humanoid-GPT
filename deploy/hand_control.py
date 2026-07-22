@@ -10,6 +10,8 @@ from __future__ import annotations
 import numpy as np
 from enum import IntEnum
 
+from deploy.constants import HAND, HAND_INFO
+
 # Predefined hand poses
 HAND_POSES = {
     "left": {
@@ -97,7 +99,7 @@ class Dex3Controller:
 
 
 def update_hand_from_mocap(
-    hand_ctrl: Dex3Controller | None,
+    hand_ctrl: "Dex3Controller | None",
     hand_cmd: tuple | None,
     last_left: bool | None,
     last_right: bool | None,
@@ -113,7 +115,10 @@ def update_hand_from_mocap(
     Returns:
         Updated (last_left, last_right).
     """
-    if hand_ctrl is None or hand_cmd is None:
+    # Only the Dex3 controller exposes the open/close pose interface used here.
+    # For other hand types (e.g. BrainCo) the dedicated deploy script drives the
+    # hand with its own continuous retargeting, so this is a safe no-op.
+    if hand_ctrl is None or hand_cmd is None or not hasattr(hand_ctrl, "ctrl_dual_hand"):
         return last_left, last_right
 
     left_open, _, right_open, _ = hand_cmd
@@ -126,3 +131,46 @@ def update_hand_from_mocap(
         hand_ctrl.ctrl_dual_hand(left_pose, right_pose)
 
     return left_open, right_open
+
+
+# Dedicated deploy entry-point for a hand the generic script can't drive itself.
+_DEPLOY_HINT = {
+    "brainco": "python -m deploy.brainco.play_track_brainco",
+}
+
+
+def make_hand_controller(
+    net: str | None = None,
+    *,
+    fps: int = 100,
+    re_init: bool = False,
+    supported: tuple[str, ...] = ("dex3", "brainco"),
+):
+    """Instantiate the real-robot hand controller selected by the ``HAND`` env var.
+
+    Returns the controller, or ``None`` when no hand is mounted
+    (``HAND=None`` / ``Default``), when the caller does not support the mounted
+    hand (a hint to the dedicated script is logged), or when construction fails.
+
+    ``supported`` lists the controller kinds the caller can actually command, so
+    a mounted-but-unsupported hand is skipped instead of starting a controller
+    the caller would never drive (whose blocking DDS init could also hang).
+    Hardware SDK imports are deferred to the chosen branch.
+    """
+    kind = HAND_INFO[HAND]["controller"]
+    if kind is None:
+        return None
+    if kind not in supported:
+        hint = _DEPLOY_HINT.get(kind)
+        print(f"[Hand] HAND={HAND} is not driven here." + (f" Use `{hint}`." if hint else ""))
+        return None
+    try:
+        if kind == "dex3":
+            return Dex3Controller(net=net, re_init=re_init)
+        if kind == "brainco":
+            from deploy.brainco.brainco_controller import BraincoController
+
+            return BraincoController(fps=fps)
+    except Exception as e:
+        print(f"[Hand] Failed to init {kind} controller: {e}")
+    return None

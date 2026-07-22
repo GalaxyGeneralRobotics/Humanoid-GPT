@@ -100,6 +100,45 @@ def calculate_root_tracking_error(state, ref_curr):
     return pos_error_m, vel_error_ms, yaw_error
 
 
+def calculate_joint_jerk(state_history, ctrl_dt=0.02):
+    """Calculate the mean joint jerk (rad/s^3) over a recorded trajectory.
+
+    Jerk is the 3rd-order finite difference of the joint angles (``qpos[7:]``)
+    sampled at the control rate ``ctrl_dt``. It complements per-frame pose
+    tracking errors (KPT / joint MAE) by capturing how smooth and
+    hardware-friendly the produced motion is: a controller can attain a low
+    tracking error while still producing very jittery, high-jerk motion that is
+    unsafe to deploy on real hardware.
+
+    Args:
+        state_history: list of per-step dicts, each containing ``qpos`` (the
+            full MuJoCo joint position vector, base pose in the first 7 dims).
+        ctrl_dt: control timestep in seconds (e.g. 0.02 for a 50 Hz policy).
+
+    Returns:
+        Mean absolute joint jerk in rad/s^3. Returns ``inf`` when the history is
+        too short (< 4 frames) or ``ctrl_dt`` is non-positive.
+    """
+    if not state_history or ctrl_dt <= 0.0:
+        return float("inf")
+    try:
+        qpos = np.stack(
+            [np.asarray(s["qpos"][7:], dtype=np.float64) for s in state_history]
+        )
+    except Exception:
+        return float("inf")
+    if qpos.shape[0] < 4:
+        return float("inf")
+
+    # 2nd-order central finite difference -> joint acceleration (rad/s^2):
+    #   a[t] = (q[t+1] - 2 q[t] + q[t-1]) / dt^2
+    accel = (qpos[2:] - 2.0 * qpos[1:-1] + qpos[:-2]) / (ctrl_dt ** 2)
+    # forward difference of acceleration -> joint jerk (rad/s^3):
+    #   j[t] = (a[t+1] - a[t]) / dt
+    jerk = np.diff(accel, axis=0) / ctrl_dt
+    return float(np.mean(np.abs(jerk)))
+
+
 def calculate_max_errors(traj_metrics):
     """Calculate maximum errors across all frames from trajectory metrics.
     

@@ -5,6 +5,7 @@ import mujoco.mjx as mjx
 import mujoco.viewer
 import numpy as np
 
+from utils.hand import load_mj_model
 from utils.sim_base import BaseSim, State
 
 
@@ -101,8 +102,8 @@ class MJXSim(BaseSim):
         self.headless = headless
         self.n_sub = int(ctrl_dt / sim_dt)
 
-        # load MuJoCo once
-        self.mj_model = mujoco.MjModel.from_xml_path(xml_path)
+        # load MuJoCo once (hand-aware: mounts the HAND end-effector, rigid)
+        self.mj_model = load_mj_model(xml_path)
         self.mj_model.opt.timestep = sim_dt
         self.mjx_model = mjx.put_model(self.mj_model)
 

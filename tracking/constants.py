@@ -2,6 +2,10 @@ import os
 from pathlib import Path
 import numpy as np
 from utils.path import PATH_ASSET
+# HAND selects the mounted end-effector (None / Default / Dex3 / BrainCo) and is
+# honoured by the hand-aware model loader (utils.hand.load_mj_model). Re-exported
+# here so the rest of the training stack can read ``consts.HAND``.
+from utils.hand import HAND, HAND_INFO, load_mj_model, load_mj_spec  # noqa: F401
 
 G1_VERSION = os.environ.get("G1_VERSION", "5010")
 ROOT_PATH = PATH_ASSET / f"unitree_g1_{G1_VERSION}"

@@ -672,7 +672,7 @@ def _run_onboard(stdscr, args: "OnboardArgs"):
 
     # Tracking policy
     policy_args = PolicyArgs(
-        load_path=args.onnx_track, policy_type=args.policy_type,
+        onnx_track=args.onnx_track,
     )
     track_policy = get_policy_onnx(
         policy_args, use_trt=args.use_trt, strict_trt=False
@@ -923,7 +923,6 @@ class OnboardArgs:
     onnx_walk: str = "storage/ckpts/G1-Walk/07140632_G1-Walk_v2.0.0_baseline.onnx"
     onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
     track_dir: str = "storage/test"
-    policy_type: str = "mlp"
     convert_xml_path: str = str(consts.TRACK_XML)
 
     # Robot / control

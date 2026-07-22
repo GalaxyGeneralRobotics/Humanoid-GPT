@@ -7,13 +7,11 @@ Reuses the keyboard_gamepad infrastructure from gx_loco_deploy.
 from __future__ import annotations
 
 import os
-import sys
 import time
 import threading
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
+from multiprocessing import get_context
 from dataclasses import dataclass, field
-from multiprocessing import Process, Array, Value
-from threading import Lock, Thread
 
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 import pygame  # noqa: E402
@@ -426,10 +424,11 @@ class KeyboardCmdPad:
         self._names = [d.name for d in dims]
         self._name_to_idx = {n: i for i, n in enumerate(self._names)}
         n = len(dims)
+        self._ctx = get_context("spawn")
 
         # Shared float array: subprocess writes, main process reads
-        self._shm = Array("f", n, lock=True)
-        self._stop = Value("i", 0)
+        self._shm = self._ctx.Array("f", n, lock=True)
+        self._stop = self._ctx.Value("i", 0)
 
         # Initialize with default values
         with self._shm.get_lock():
@@ -449,13 +448,18 @@ class KeyboardCmdPad:
             else:
                 dim_specs.append(("btn", {"name": d.name, "key": d.key, "init": d.init}))
 
-        self._proc = Process(
+        self._proc = self._ctx.Process(
             target=_gui_worker,
             args=(dim_specs, freq, window_width, self._shm, self._stop),
             daemon=True,
         )
         self._proc.start()
         time.sleep(0.3)
+        if not self._proc.is_alive():
+            raise RuntimeError(
+                "Keyboard UI process exited during startup; "
+                "check pygame/display errors above."
+            )
 
     def get_command(self, axis: str) -> float:
         import numpy as np

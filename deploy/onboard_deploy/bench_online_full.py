@@ -133,7 +133,7 @@ def _gmr_worker(
             return getattr(self._stream, name)
 
     _sys.stdout = _WarpFilter(_sys.stdout)
-    from general_motion_retargeting import GeneralMotionRetargeting as GMR
+    from gmr import GeneralMotionRetargeting as GMR
     _sys.stdout = _sys.stdout._stream
 
     # Pin GMR subprocess to core 2 with SCHED_FIFO
@@ -220,7 +220,7 @@ def _step_full(
 
 
 def main(args: BenchArgs) -> None:
-    print_environment_info(extra_packages=["general_motion_retargeting"])
+    print_environment_info(extra_packages=["gmr"])
 
     from unitree_sdk2py.core.channel import ChannelFactoryInitialize
     from deploy.real_robot import LowLevelControlG1
@@ -266,7 +266,7 @@ def main(args: BenchArgs) -> None:
     env_cfg = g1_infer_env_config(ctrl_dt=ctrl_dt)
     print(f"Loading policy: {args.onnx_track}")
     policy_args = PolicyArgs(
-        load_path=args.onnx_track, policy_type=args.policy_type
+        onnx_track=args.onnx_track, policy_type=args.policy_type
     )
     track_policy = get_policy_onnx(
         policy_args, use_trt=args.use_trt, strict_trt=False

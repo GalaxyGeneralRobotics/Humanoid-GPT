@@ -49,7 +49,7 @@
 The following features are planned for future implementation:
 
 - ✅ Inference & deployment code.
-- ✅ Pre-trained model checkpoints (`[storage/ckpts/pns_wo_priv216.onnx](storage/ckpts/pns_wo_priv216.onnx)`).
+- ✅ Pre-trained model checkpoints (storage/ckpts/).
 - Training code.
 - Training data.
 
@@ -97,14 +97,14 @@ A pre-trained tracking policy (`.onnx`) and a sample trajectory under
 python -m scripts.app
 
 # Track a single motion / a folder of motions
-python -m scripts.inference --load_path storage/ckpts/pns_wo_priv216.onnx --mocap_path storage/test
+python -m scripts.inference --onnx_track storage/ckpts/pns_wo_priv216.onnx --track_dir storage/test
 
 # Parallel evaluation over a folder of trajectories
-python -m scripts.eval_parallel --load_path storage/ckpts/pns_wo_priv216.onnx \
-    --mocap_path storage/test --workers 32 --privileged
+python -m scripts.eval_parallel --onnx_track storage/ckpts/pns_wo_priv216.onnx \
+    --track_dir storage/test --workers 32 --privileged
 
 # Visualize a reference trajectory
-python -m scripts.vis --mocap_path storage/test
+python -m scripts.vis --path storage/test
 ```
 
 The expected motion format is a `.npz` containing either `qpos` directly, or
@@ -151,7 +151,7 @@ Humanoid-GPT/
 ├── 📂 projects/   # Optional side modules
 │   ├── hme/                  # Harmonic Motion Encoder (Periodic Autoencoder)
 │   ├── gqs/                  # General Quality Selection (physics + diversity scoring)
-│   └── tracking_transformer/ # Transformer tracking policy (inference / deploy)
+│   └── transformer/          # Transformer tracking policy (inference / deploy)
 ├── 📂 utils/      # MuJoCo / MJX simulation, transforms, video rendering
 └── 📂 storage/    # Assets, configs, sample trajectory, released checkpoints
 ```

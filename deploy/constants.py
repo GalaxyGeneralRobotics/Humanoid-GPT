@@ -2,6 +2,11 @@
 
 import numpy as np
 
+# Mounted end-effector selection (None / Default / Dex3 / BrainCo). Re-exported
+# from utils.hand so deploy code can pick the right real-robot hand controller
+# without importing the training stack.
+from utils.hand import HAND, HAND_INFO  # noqa: F401
+
 # ---------------------------------------------------------------------------
 # Misc
 # ---------------------------------------------------------------------------

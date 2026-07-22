@@ -214,7 +214,7 @@ def main(args: BenchArgs) -> None:
     env_cfg = g1_infer_env_config(ctrl_dt=ctrl_dt)
     print(f"Loading policy: {args.onnx_track}")
     policy_args = PolicyArgs(
-        load_path=args.onnx_track, policy_type=args.policy_type
+        onnx_track=args.onnx_track, policy_type=args.policy_type
     )
     track_policy = get_policy_onnx(
         policy_args, use_trt=args.use_trt, strict_trt=False

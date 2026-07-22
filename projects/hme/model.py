@@ -145,7 +145,7 @@ class PeriodicAutoencoder(nn.Module):
 #                                USAGE EXAMPLE
 # ==============================================================================
 if __name__ == "__main__":
-    # --- Configuration based on paper ---
+    # --- Configuration ---
     batch_size = 32
     inp_dim = 30
     window_len = 29

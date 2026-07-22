@@ -196,7 +196,7 @@ def main(args: BenchArgs) -> None:
 
     print(f"\nLoading policy: {args.onnx_track}")
     policy_args = PolicyArgs(
-        load_path=args.onnx_track,
+        onnx_track=args.onnx_track,
         policy_type=args.policy_type,
         device=args.device,
     )

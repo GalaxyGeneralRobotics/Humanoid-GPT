@@ -102,7 +102,7 @@ stable across smoother / scale tweaks.
 ### Workstation side (4090)
 
 Any machine that already runs `deploy/play_track.py` works -- the
-dependencies (`noitom`, `general_motion_retargeting`, `numpy`) are identical
+dependencies (`noitom`, `gmr`, `numpy`) are identical
 because we re-use `deploy/retarget.py` as a subprocess.
 
 ```bash

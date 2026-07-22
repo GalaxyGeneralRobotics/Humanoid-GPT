@@ -68,7 +68,7 @@ def _retarget_worker(
         except (OSError, PermissionError):
             pass
 
-    from general_motion_retargeting import GeneralMotionRetargeting as GMR
+    from gmr import GeneralMotionRetargeting as GMR
 
     if (mocap_type or "").lower() == "xsens":
         from deploy.xsens.client import XsensClient
@@ -178,7 +178,7 @@ def _retarget_worker(
 
 
 def _visualize_worker(buf, stop_evt, robot="unitree_g1"):
-    from general_motion_retargeting import RobotMotionViewer
+    from gmr import RobotMotionViewer
     viewer = RobotMotionViewer(robot_type=robot, motion_fps=120.0)
     while not stop_evt.is_set():
         with buf.get_lock():

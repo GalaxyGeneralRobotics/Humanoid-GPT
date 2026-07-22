@@ -1,0 +1,39 @@
+<mujoco model="hand_default">
+  <!-- Default lightweight rubber dummy hand (the hand baked into unitree_g1_5010 /
+       unitree_g1_4010). This is the HAND=Default configuration. The standalone tracking
+       models already ship with this hand, so the loader uses the version files directly for
+       HAND=Default; this fragment exists for consolidation / reuse (e.g. visualization and
+       rebuilding a model from a hand-agnostic core). It carries no finger joints. -->
+  <compiler angle="radian" meshdir="meshes"/>
+
+  <asset>
+    <mesh name="left_rubber_hand" file="left_rubber_hand.STL"/>
+    <mesh name="right_rubber_hand" file="right_rubber_hand.STL"/>
+  </asset>
+
+  <default>
+    <default class="default_visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="2" density="0" rgba="0.7 0.7 0.7 1"/>
+    </default>
+    <default class="default_collision">
+      <geom group="3" contype="0" conaffinity="0" rgba=".2 .6 .2 .2"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <body name="left_hand" pos="0 0 0">
+      <inertial pos="0.09 0.003 0" mass="0.05" diaginertia="3e-5 3e-5 2e-5"/>
+      <geom class="default_visual" pos="0.0415 0.003 0" quat="1 0 0 0" mesh="left_rubber_hand"/>
+      <site name="left_palm" pos="0.08 0 0" size="0.01" group="5" rgba="1 0 0 1"/>
+      <geom name="left_hand_collision" class="default_collision" type="capsule" size="0.035"
+            fromto="0.07 0 0 0.15 -0.02 0"/>
+    </body>
+    <body name="right_hand" pos="0 0 0">
+      <inertial pos="0.09 -0.003 0" mass="0.05" diaginertia="3e-5 3e-5 2e-5"/>
+      <geom class="default_visual" pos="0.0415 -0.003 0" quat="1 0 0 0" mesh="right_rubber_hand"/>
+      <site name="right_palm" pos="0.08 0 0" size="0.01" group="5" rgba="1 0 0 1"/>
+      <geom name="right_hand_collision" class="default_collision" type="capsule" size="0.035"
+            fromto="0.07 0 0 0.15 0.02 0"/>
+    </body>
+  </worldbody>
+</mujoco>

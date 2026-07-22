@@ -160,7 +160,6 @@ def compute_single_frame(
     p_slide = 0.0
     p_slide += jnp.where(l_contact, jnp.maximum(0.0, l_speed - 0.1), 0.0)
     p_slide += jnp.where(r_contact, jnp.maximum(0.0, r_speed - 0.1), 0.0)
-    p_slide *= 5.0
 
     # --- 2. Velocity Limit ---
     joint_vels = qvel[-len(dof_vel_limit):]
@@ -172,7 +171,7 @@ def compute_single_frame(
 
     # --- 4. Jerk ---
     accel = (qvel - prev_qvel) / dt
-    p_jerk = jnp.linalg.norm(accel) * 0.01
+    p_jerk = jnp.linalg.norm(accel)
 
     # --- 5 & 6. Global Contact Analysis (Any Body Part) ---
     floor_mask = (d.contact.geom1 == geom_id_floor) | (d.contact.geom2 == geom_id_floor)
@@ -293,14 +292,14 @@ def score_one_file(fpath, env, args):
         "floating_frames_ratio": float(t_float) / n_frames
     }
 
-    # === [Soft Scoring] Weights Configuration (Score V2) ===
+    # === [Soft Scoring] Calibrated Weights (sensitivity analysis) ===
     score = 100.0 - (
-        1.0 * metrics["foot_sliding"] +           # Base Priority
-        5.0 * metrics["velocity_violation"] +     # High Priority (within valid range)
-        10 * metrics["self_collision"] +          # High Priority (within valid range)
-        0.01 * metrics["jerk"] +                  # Ignored
-        10.0 * metrics["penetration"] +           # Reduced (Allow soft penetration)
-        200.0 * metrics["floating_frames_ratio"]  # Top Priority (Double Weight)
+        1.70 * metrics["foot_sliding"] +            # Toxic
+        44.22 * metrics["velocity_violation"] +     # Friendly
+        0.17 * metrics["self_collision"] +          # Friendly
+        0.28 * metrics["jerk"] +                    # Neutral
+        216.62 * metrics["penetration"] +           # Neutral (safety constraint)
+        24.19 * metrics["floating_frames_ratio"]    # Toxic
     )
 
     return max(0.0, score), metrics

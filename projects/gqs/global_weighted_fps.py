@@ -24,8 +24,12 @@ class Args:
     downsample_rate: int = 5
     device: str = "cuda"
     # Sampling parameters
-    selection_ratio: float = 0.2
-    alpha: float = 0.6
+    # selection_ratio is dataset-dependent (paper: ~10% optimal for AMASS,
+    # ~30% for PHUMA via Adaptive Ratio Selection r* = 0.5 * EDR^2).
+    selection_ratio: float = 0.1
+    # alpha weights diversity (1.0) vs complexity (0.0); paper Table 5 uses 0.99,
+    # i.e. complexity acts only as a small tie-break bias.
+    alpha: float = 0.99
 
 
 def extract_windows(npz_path, win_sec, downsample_rate, state_dim, device):
@@ -87,7 +91,7 @@ def compute_complexity(file_path: str):
         return 0.0
 
 
-def weighted_fps_global(embeddings, complexities, n_samples, alpha=0.6):
+def weighted_fps_global(embeddings, complexities, n_samples, alpha=0.99):
     """
     Perform global weighted Farthest Point Sampling (FPS).
     """

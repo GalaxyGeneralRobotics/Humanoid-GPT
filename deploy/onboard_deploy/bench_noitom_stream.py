@@ -249,7 +249,7 @@ def _print_summary(args: BenchNoitomArgs, stats: StreamStats) -> None:
 
 
 def main(args: BenchNoitomArgs) -> None:
-    print_environment_info(extra_packages=["noitom", "general_motion_retargeting"])
+    print_environment_info(extra_packages=["noitom", "gmr"])
     print("\nStarting Noitom PNLink retarget subprocess...")
     print(
         f"  human_height={args.human_height:.2f}  "

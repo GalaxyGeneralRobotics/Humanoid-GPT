@@ -49,6 +49,7 @@ from deploy.constants import DEFAULT_QPOS as DEFAULT_QPOS_JOINT, KPs_walking, KD
 from tracking.metrics import (
     calculate_kpt_mae_error,
     calculate_joint_tracking_error,
+    calculate_joint_jerk,
     calculate_root_tracking_error,
     calculate_trajectory_length,
     calculate_max_errors,
@@ -322,7 +323,7 @@ def load_offline_motions(track_dir: str, mj_model: mujoco.MjModel, freq: int = 5
 # Offline tracking metrics (same format as inference.py)
 # ---------------------------------------------------------------------------
 
-def _print_offline_metrics(traj_metrics: dict, filename: str, ref_traj: dict, mj_model) -> None:
+def _print_offline_metrics(traj_metrics: dict, filename: str, ref_traj: dict, mj_model, ctrl_dt: float = 0.02) -> None:
     """Print tracking error metrics in the same format as scripts/inference.py."""
     actual_traj_len = len(ref_traj["qpos"])
     traj_length_ratio, termination_step = calculate_trajectory_length(
@@ -335,6 +336,7 @@ def _print_offline_metrics(traj_metrics: dict, filename: str, ref_traj: dict, mj
     avg_root_pos = np.mean(traj_metrics["root_pos_errors"])
     avg_root_vel = np.mean(traj_metrics["root_vel_errors"])
     avg_root_yaw = np.mean(traj_metrics["root_yaw_errors"])
+    avg_joint_jerk = calculate_joint_jerk(traj_metrics["state_history"], ctrl_dt)
     max_errors = calculate_max_errors(traj_metrics)
 
     print(f"\n  [Offline Track] {filename} completed:")
@@ -343,6 +345,7 @@ def _print_offline_metrics(traj_metrics: dict, filename: str, ref_traj: dict, mj
     print(f"    KPT Rotation MAE: {avg_kpt_rot:.6f} rad (Max: {max_errors['max_kpt_rot_error']:.6f} rad)")
     print(f"    Joint Position MAE: {avg_joint_pos:.6f} rad (Max: {max_errors['max_joint_pos_error']:.6f} rad)")
     print(f"    Joint Velocity MAE: {avg_joint_vel:.6f} rad/s (Max: {max_errors['max_joint_vel_error']:.6f} rad/s)")
+    print(f"    Joint Jerk: {avg_joint_jerk:.3f} rad/s^3")
     print(f"    Root Pos Error: {avg_root_pos:.3f} mm (Max: {max_errors['max_root_pos_error']:.3f} mm)")
     print(f"    Root Vel Error: {avg_root_vel:.3f} mm/s (Max: {max_errors['max_root_vel_error']:.3f} mm/s)")
     print(f"    Root Yaw Error: {avg_root_yaw:.6f} rad (Max: {max_errors['max_root_yaw_error']:.6f} rad)\n")
@@ -359,8 +362,7 @@ def run_sim(args: "DeployArgs"):
 
     # Load ONNX tracking policy
     policy_args = PolicyArgs(
-        load_path=args.onnx_track,
-        policy_type=args.policy_type,
+        onnx_track=args.onnx_track,
     )
     track_policy = get_policy_onnx(policy_args)
 
@@ -473,7 +475,7 @@ def run_sim(args: "DeployArgs"):
 
             if leaving_track:
                 if last_mode >= 2 and traj_metrics is not None and len(traj_metrics["state_history"]) > 0:
-                    _print_offline_metrics(traj_metrics, traj_filename, ref_traj, mj_sim.mj_model)
+                    _print_offline_metrics(traj_metrics, traj_filename, ref_traj, mj_sim.mj_model, ctrl_dt)
                 traj_metrics = None
                 traj_filename = None
                 live_converter.reset()
@@ -552,7 +554,7 @@ def run_sim(args: "DeployArgs"):
 
                     # Print metrics when trajectory completes (after processing last frame)
                     if track_step >= traj_len and traj_metrics is not None and len(traj_metrics["state_history"]) > 0:
-                        _print_offline_metrics(traj_metrics, traj_filename, ref_traj, mj_sim.mj_model)
+                        _print_offline_metrics(traj_metrics, traj_filename, ref_traj, mj_sim.mj_model, ctrl_dt)
                         traj_metrics = None
                         traj_filename = None
                         ref_traj = None  # Avoid index out of bounds on next iteration
@@ -579,7 +581,7 @@ def run_real(args: "DeployArgs"):
     from unitree_sdk2py.core.channel import ChannelFactoryInitialize
     from unitree_sdk2py.utils.thread import RecurrentThread
     from deploy.real_robot import LowLevelControlG1, KeyMap
-    from deploy.hand_control import Dex3Controller, update_hand_from_mocap, HAND_POSES
+    from deploy.hand_control import make_hand_controller, update_hand_from_mocap
     from deploy.retarget import (
         start_realtime_retarget,
         read_hand_buffer,
@@ -591,7 +593,7 @@ def run_real(args: "DeployArgs"):
 
     # Track policy (TensorRT for real-robot inference)
     policy_args = PolicyArgs(
-        load_path=args.onnx_track, policy_type=args.policy_type,
+        onnx_track=args.onnx_track,
     )
     track_policy = get_policy_onnx(policy_args, use_trt=True, strict_trt=True)
     walk_policy = WalkPolicy(args.onnx_walk)
@@ -615,32 +617,37 @@ def run_real(args: "DeployArgs"):
     low_ctrl = LowLevelControlG1(ctrl_dt=ctrl_dt, debug=args.debug)
 
     xml_path = str(consts.ROOT_PATH / "scene_mjx_track.xml")
-    phantom_model = mujoco.MjModel.from_xml_path(xml_path)
+    phantom_model = consts.load_mj_model(xml_path)
     phantom_model.opt.timestep = 0.001
 
     infer_fn = G1TrackInferFn(env_cfg, phantom_model, track_policy, privileged=False)
     live_converter = LiveRefConverter(phantom_model, ctrl_dt)
 
-    # Online retarget
-    buf_mocap, ts_mocap, buf_hand = start_realtime_retarget(
-        robot="unitree_g1", dof_full=7 + 29,
-        actual_human_height=args.human_height,
-        visualize_retarget=args.visualize_retarget,
-        mocap_type=args.mocap_type,
-        buffer_ms=args.buffer_ms,
-        xsens_host=args.xsens_host,
-        xsens_port=args.xsens_port,
-        xsens_protocol=args.xsens_protocol,
-    )
-    mocap_buffer = MocapBuffer(buf_mocap, ts_mocap)
-
-    # Hand controller
-    hand_ctrl = None
-    if args.enable_hand:
+    # Online retarget (optional)
+    mocap_buffer = None
+    buf_hand = None
+    if not args.no_mocap:
         try:
-            hand_ctrl = Dex3Controller(net=args.net, re_init=False)
+            buf_mocap, ts_mocap, buf_hand = start_realtime_retarget(
+                robot="unitree_g1", dof_full=7 + 29,
+                actual_human_height=args.human_height,
+                visualize_retarget=args.visualize_retarget,
+                mocap_type=args.mocap_type,
+                buffer_ms=args.buffer_ms,
+                xsens_host=args.xsens_host,
+                xsens_port=args.xsens_port,
+                xsens_protocol=args.xsens_protocol,
+            )
+            mocap_buffer = MocapBuffer(buf_mocap, ts_mocap)
+            print("[Mocap] Retarget subprocess started.")
         except Exception as e:
-            print(f"[Hand] Failed to init: {e}")
+            print(f"[Mocap] Failed to start retarget: {e}. Online mode disabled.")
+    else:
+        print("[Mocap] Disabled (--no-mocap). Online mode disabled.")
+
+    # This script only drives the Dex3 hand (binary open/close from mocap via
+    # update_hand_from_mocap); other mounted hands are skipped with a hint.
+    hand_ctrl = make_hand_controller(net=args.net, supported=("dex3",)) if args.enable_hand else None
 
     last_mode = 0
     track_step = 0
@@ -671,6 +678,8 @@ def run_real(args: "DeployArgs"):
                 if traj_idx < len(ref_motions):
                     ref_traj = ref_motions[traj_idx]["data"]
                     track_step = 0
+            elif mode == 1 and mocap_buffer is None:
+                print("[Track] Online retarget unavailable (--no-mocap or init failed)")
 
         if leaving_track:
             live_converter.reset()
@@ -681,6 +690,9 @@ def run_real(args: "DeployArgs"):
             low_ctrl.step(motor_targets, KPs_walking, KDs_walking)
         else:
             if mode == 1:
+                if mocap_buffer is None:
+                    last_mode = mode
+                    return
                 qpos_full, _ = mocap_buffer.read()
                 ref_new = live_converter.convert(qpos_full)
                 if prev_online_ref is None:
@@ -706,7 +718,7 @@ def run_real(args: "DeployArgs"):
             )
             low_ctrl.step(np.asarray(motor_targets).flatten(), consts.KPs, consts.KDs)
 
-            if hand_ctrl is not None:
+            if hand_ctrl is not None and buf_hand is not None:
                 hand_cmd = read_hand_buffer(buf_hand)
                 last_left_hand, last_right_hand = update_hand_from_mocap(
                     hand_ctrl, hand_cmd, last_left_hand, last_right_hand,
@@ -759,7 +771,6 @@ class DeployArgs:
     onnx_walk: str = "storage/ckpts/G1-Walk/07140632_G1-Walk_v2.0.0_baseline.onnx"
     track_dir: str = "storage/test"
     onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
-    policy_type: str = "mlp"
     convert_xml_path: str = str(consts.TRACK_XML)
     real: bool = False
     debug: bool = False

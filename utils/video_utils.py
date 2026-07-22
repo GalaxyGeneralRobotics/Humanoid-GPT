@@ -4,7 +4,7 @@ import imageio
 import numpy as np
 
 
-def images_to_video(image_list, output_filename, fps=30, color_format="RGB"):
+def images_to_video(image_list, output_filename, fps=30, color_format="RGB", preset=None, threads=None):
     os.makedirs(os.path.dirname(output_filename) or ".", exist_ok=True)
 
     frames = []
@@ -30,7 +30,12 @@ def images_to_video(image_list, output_filename, fps=30, color_format="RGB"):
 
         kw = dict(fps=fps)
         if ext in {".mp4", ".m4v", ".mov"}:
-            kw.update(codec="libx264", ffmpeg_params=["-pix_fmt", "yuv420p"])
+            ffmpeg_params = ["-pix_fmt", "yuv420p"]
+            if preset:
+                ffmpeg_params += ["-preset", str(preset)]
+            if threads:
+                ffmpeg_params += ["-threads", str(threads)]
+            kw.update(codec="libx264", ffmpeg_params=ffmpeg_params)
 
         with imageio.get_writer(output_filename, format="FFMPEG", **kw) as w:
             for f in frames:

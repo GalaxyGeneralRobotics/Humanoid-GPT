@@ -1,5 +1,5 @@
 # 2025.09.29 HIT-xiaowangzi
-# 针对强脑灵巧手写的 controller，封装与 dex3 控制器一致
+# Controller for the BrainCo dexterous hand; interface mirrors the dex3 controller
 import numpy as np
 from enum import IntEnum
 import threading
@@ -98,7 +98,7 @@ class BraincoController():
 
     def set_action(self, action):
         qpos = action['qpos']
-        # 右手是前6个idx, 左手是后6个idx
+        # Right hand is the first 6 indices, left hand is the last 6 indices
         for idx, id in enumerate(Brainco_Right_Hand_JointIndex):   
             self.right_hand_action_array[idx] = qpos[id.value]
         for idx, id in enumerate(Brainco_Left_Hand_JointIndex):    

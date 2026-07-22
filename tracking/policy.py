@@ -116,7 +116,7 @@ def _warmup_onnx(session: rt.InferenceSession, n: int = 20):
 class Args:
     policy_type: str = "mlp"  # "mlp" | "transformer"
     device: str = "cuda:0"
-    load_path: str = ""
+    onnx_track: str = ""
 
 
 class _ONNXFastInfer:
@@ -190,12 +190,12 @@ class MLP_Policy_ONNX(_ONNXFastInfer):
         providers = _get_onnx_providers(getattr(config, "device", "cuda"))
         sess_opts = _make_session_options()
         self.onnx_model = rt.InferenceSession(
-            config.load_path,
+            config.onnx_track,
             sess_options=sess_opts,
             providers=providers,
         )
         print(
-            f"[ONNX] Loaded {config.load_path}  "
+            f"[ONNX] Loaded {config.onnx_track}  "
             f"providers={self.onnx_model.get_providers()}  "
             f"intra={sess_opts.intra_op_num_threads} "
             f"inter={sess_opts.inter_op_num_threads}"
@@ -211,7 +211,7 @@ class MLP_Policy_ONNX(_ONNXFastInfer):
 class MLP_Policy_TensorRT(_ONNXFastInfer):
     def __init__(self, config, strict_trt: bool = False):
         self.onnx_model = _make_tensorrt_session(
-            config.load_path,
+            config.onnx_track,
             strict=strict_trt,
             device_id=_parse_device_id(getattr(config, "device", "cuda")),
         )

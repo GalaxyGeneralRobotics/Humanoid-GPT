@@ -1,0 +1,196 @@
+<mujoco model="hand_brainco">
+  <!-- BrainCo (强脑) 5-finger dexterous hand. Geometry / poses / inertia migrated from the
+       original BrainCo G1 model (the hand used by deploy/brainco/*; its joint ranges
+       1.5184 / 1.0472 / 1.4661 / 1.6930 match deploy.brainco's qpos->cmd maps).
+       Authored as two top-level bodies `left_hand` / `right_hand` anchored at the
+       `*_wrist_yaw_link` origin so the hand-aware loader (utils/hand.py) can attach them onto
+       either G1 hardware version. Finger joints are kept for teleoperation / grasping; the
+       tracking loader strips them to obtain a rigid hand (no extra DoF). -->
+  <compiler angle="radian" meshdir="meshes"/>
+
+  <asset>
+    <mesh name="left_base_link" file="left_base_link.STL"/>
+    <mesh name="left_thumb_metacarpal_Link" file="left_thumb_metacarpal_Link.STL"/>
+    <mesh name="left_thumb_proximal_Link" file="left_thumb_proximal_Link.STL"/>
+    <mesh name="left_thumb_distal_Link" file="left_thumb_distal_Link.STL"/>
+    <mesh name="left_thumb_tip_Link" file="left_thumb_tip_Link.STL"/>
+    <mesh name="left_index_proximal_Link" file="left_index_proximal_Link.STL"/>
+    <mesh name="left_index_distal_Link" file="left_index_distal_Link.STL"/>
+    <mesh name="left_index_tip_Link" file="left_index_tip_Link.STL"/>
+    <mesh name="left_middle_proximal_Link" file="left_middle_proximal_Link.STL"/>
+    <mesh name="left_middle_distal_Link" file="left_middle_distal_Link.STL"/>
+    <mesh name="left_middle_tip_Link" file="left_middle_tip_Link.STL"/>
+    <mesh name="left_ring_proximal_Link" file="left_ring_proximal_Link.STL"/>
+    <mesh name="left_ring_distal_Link" file="left_ring_distal_Link.STL"/>
+    <mesh name="left_ring_tip_Link" file="left_ring_tip_Link.STL"/>
+    <mesh name="left_pinky_proximal_Link" file="left_pinky_proximal_Link.STL"/>
+    <mesh name="left_pinky_distal_Link" file="left_pinky_distal_Link.STL"/>
+    <mesh name="left_pinky_tip_Link" file="left_pinky_tip_Link.STL"/>
+    <mesh name="right_base_link" file="right_base_link.STL"/>
+    <mesh name="right_thumb_metacarpal_link" file="right_thumb_metacarpal_link.STL"/>
+    <mesh name="right_thumb_proximal_link" file="right_thumb_proximal_link.STL"/>
+    <mesh name="right_thumb_distal_link" file="right_thumb_distal_link.STL"/>
+    <mesh name="right_thumb_tip" file="right_thumb_tip.STL"/>
+    <mesh name="right_index_proximal_link" file="right_index_proximal_link.STL"/>
+    <mesh name="right_index_distal_link" file="right_index_distal_link.STL"/>
+    <mesh name="right_index_tip" file="right_index_tip.STL"/>
+    <mesh name="right_middle_proximal_link" file="right_middle_proximal_link.STL"/>
+    <mesh name="right_middle_distal_link" file="right_middle_distal_link.STL"/>
+    <mesh name="right_middle_tip" file="right_middle_tip.STL"/>
+    <mesh name="right_ring_proximal_link" file="right_ring_proximal_link.STL"/>
+    <mesh name="right_ring_distal_link" file="right_ring_distal_link.STL"/>
+    <mesh name="right_ring_tip" file="right_ring_tip.STL"/>
+    <mesh name="right_pinky_proximal_link" file="right_pinky_proximal_link.STL"/>
+    <mesh name="right_pinky_distal_link" file="right_pinky_distal_link.STL"/>
+    <mesh name="right_pinky_tip" file="right_pinky_tip.STL"/>
+  </asset>
+
+  <default>
+    <default class="brainco_visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="2" density="0" rgba="1 1 1 1"/>
+    </default>
+    <default class="brainco_collision">
+      <geom group="3" contype="0" conaffinity="0" rgba=".2 .6 .2 .2"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <!-- ================= LEFT HAND ================= -->
+    <body name="left_hand" pos="0 0 0">
+      <inertial pos="0.075 0 0" mass="0.13" diaginertia="1.6e-4 1.6e-4 1.0e-4"/>
+      <geom class="brainco_visual" pos="0.0415 0 0" quat="0.5 -0.5 0.5 -0.5" mesh="left_base_link"/>
+      <site name="left_palm" pos="0.08 0 0" size="0.01" group="5" rgba="1 0 0 1"/>
+      <geom name="left_hand_collision" class="brainco_collision" type="capsule" size="0.035"
+            fromto="0.07 0 0 0.15 -0.02 0"/>
+      <body name="left_thumb_metacarpal_Link" pos="0.069325 -0.0045 0.019" quat="0.540158 -0.456322 0.540158 -0.456322">
+        <inertial pos="1.52304e-05 -0.0070724 -0.0042084" quat="0.882814 0.0586739 -0.0302438 0.465061" mass="0.01" diaginertia="1.66114e-07 1.56005e-07 4.93864e-08"/>
+        <joint name="left_thumb_metacarpal_joint" axis="0 0 1" range="0 1.5184" actuatorfrcrange="-0.5 0.5"/>
+        <geom class="brainco_visual" mesh="left_thumb_metacarpal_Link"/>
+        <body name="left_thumb_proximal_Link" pos="0 -0.014227 0" quat="0.0726364 0.124805 0.0765192 0.986556">
+          <inertial pos="3.41002e-07 0.0250091 -0.00175057" quat="0.504397 0.495535 -0.495534 0.504455" mass="0.05" diaginertia="3.40018e-06 3.23319e-06 5.63592e-07"/>
+          <joint name="left_thumb_proximal_joint" axis="1 0 0" range="0 1.0472" actuatorfrcrange="-1.1 1.1"/>
+          <geom class="brainco_visual" mesh="left_thumb_proximal_Link"/>
+          <body name="left_thumb_distal_Link" pos="0 0.052 0">
+            <inertial pos="-1.65619e-07 0.0117551 1.13666e-05" quat="0.528503 0.469771 -0.469581 0.528672" mass="0.01" diaginertia="2.21049e-07 1.67809e-07 1.13875e-07"/>
+            <joint name="left_thumb_distal_joint" axis="1 0 0" range="0 1.0472" actuatorfrcrange="-1.1 1.1"/>
+            <geom class="brainco_visual" mesh="left_thumb_distal_Link"/>
+            <geom class="brainco_visual" pos="0 0.0265288 -0.00177344" quat="0 0 0.033369 0.999443" mesh="left_thumb_tip_Link"/>
+          </body>
+        </body>
+      </body>
+      <body name="left_index_proximal_Link" pos="0.122376 0.0021349 0.029578" quat="0.524171 -0.389611 0.550255 -0.520257">
+        <inertial pos="-0.00223539 -3.80545e-06 0.0176439" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="left_index_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="left_index_proximal_Link"/>
+        <body name="left_index_distal_Link" pos="0 0 0.032">
+          <inertial pos="0.00487463 -7.61037e-08 0.0174016" quat="0.986653 -1.93906e-06 0.162839 3.20026e-07" mass="0.01" diaginertia="0.00200042 0.00200042 0.002"/>
+          <joint name="left_index_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="left_index_distal_Link"/>
+          <geom class="brainco_visual" pos="0.011097 0 0.035739" quat="0.970472 0 0.241212 0" mesh="left_index_tip_Link"/>
+        </body>
+      </body>
+      <body name="left_middle_proximal_Link" pos="0.126493 0.0045935 0.010061" quat="0.483518 -0.438557 0.540601 -0.530687">
+        <inertial pos="-0.00222419 -3.61991e-06 0.020305" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="left_middle_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="left_middle_proximal_Link"/>
+        <body name="left_middle_distal_Link" pos="0 0 0.037" quat="0.997999 0 0.0632278 0">
+          <inertial pos="0.00316309 2.94489e-07 0.0206472" quat="0.99518 6.8255e-06 0.0980637 -6.72575e-07" mass="0.01" diaginertia="0.00200051 0.00200051 0.002"/>
+          <joint name="left_middle_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="left_middle_distal_Link"/>
+          <geom class="brainco_visual" pos="0.0073534 0 0.041703" quat="0.984807 0 0.17365 0" mesh="left_middle_tip_Link"/>
+        </body>
+      </body>
+      <body name="left_ring_proximal_Link" pos="0.125482 0.00468768 -0.0100263" quat="0.438847 -0.483813 0.530448 -0.540337">
+        <inertial pos="-0.00234461 -5.32058e-06 0.0191786" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="left_ring_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="left_ring_proximal_Link"/>
+        <body name="left_ring_distal_Link" pos="0 0 0.035" quat="0.997999 0 0.0632278 0">
+          <inertial pos="0.0029668 -2.51097e-08 0.0200084" quat="0.994971 0 0.100163 0" mass="0.01" diaginertia="0.0020005 0.0020005 0.002"/>
+          <joint name="left_ring_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="left_ring_distal_Link"/>
+          <geom class="brainco_visual" pos="0.0071824 0 0.040734" quat="0.984807 0 0.17365 0" mesh="left_ring_tip_Link"/>
+        </body>
+      </body>
+      <body name="left_pinky_proximal_Link" pos="0.120194 0.0023733 -0.029356" quat="0.390269 -0.52487 0.519763 -0.549589">
+        <inertial pos="-0.00213267 -7.0226e-06 0.016068" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="left_pinky_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="left_pinky_proximal_Link"/>
+        <body name="left_pinky_distal_Link" pos="0 0 0.029">
+          <inertial pos="0.00460916 -7.27697e-08 0.0159878" quat="0.987222 -2.0139e-06 0.159354 3.25076e-07" mass="0.01" diaginertia="0.00200035 0.00200035 0.002"/>
+          <joint name="left_pinky_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="left_pinky_distal_Link"/>
+          <geom class="brainco_visual" pos="0.010221 0 0.032918" quat="0.971859 0 0.235565 0" mesh="left_pinky_tip_Link"/>
+        </body>
+      </body>
+    </body>
+
+    <!-- ================= RIGHT HAND ================= -->
+    <body name="right_hand" pos="0 0 0">
+      <inertial pos="0.075 0 0" mass="0.13" diaginertia="1.6e-4 1.6e-4 1.0e-4"/>
+      <geom class="brainco_visual" pos="0.0415 0 0" quat="0.5 0.5 0.5 0.5" mesh="right_base_link"/>
+      <site name="right_palm" pos="0.08 0 0" size="0.01" group="5" rgba="1 0 0 1"/>
+      <geom name="right_hand_collision" class="brainco_collision" type="capsule" size="0.035"
+            fromto="0.07 0 0 0.15 0.02 0"/>
+      <body name="right_thumb_metacarpal_link" pos="0.069325 0.005619 0.019867" quat="-0.542436 -0.453611 0.54244 0.453607">
+        <inertial pos="-1.51106e-05 0.00707243 0.00420847" mass="0.01" diaginertia="0.001 0.001 0.001"/>
+        <joint name="right_thumb_metacarpal_joint" axis="0 0 1" range="0 1.5184" actuatorfrcrange="-0.5 0.5"/>
+        <geom class="brainco_visual" mesh="right_thumb_metacarpal_link"/>
+        <body name="right_thumb_proximal_link" pos="0 0.014227 0" quat="0.124805 -0.0726357 -0.986555 0.0765254">
+          <inertial pos="-4.57221e-07 0.025009 -0.00175049" mass="0.05" diaginertia="0.001 0.001 0.001"/>
+          <joint name="right_thumb_proximal_joint" axis="1 0 0" range="0 1.0472" actuatorfrcrange="-1.1 1.1"/>
+          <geom class="brainco_visual" mesh="right_thumb_proximal_link"/>
+          <body name="right_thumb_distal_link" pos="0 0.052 0">
+            <inertial pos="-5.88258e-09 0.0117545 1.13324e-05" mass="0.01" diaginertia="0.001 0.001 0.001"/>
+            <joint name="right_thumb_distal_joint" axis="1 0 0" range="0 1.0472" actuatorfrcrange="-1.1 1.1"/>
+            <geom class="brainco_visual" mesh="right_thumb_distal_link"/>
+            <geom class="brainco_visual" pos="0 0.026529 -0.0017734" quat="0.999443 -0.0333688 0 0" mesh="right_thumb_tip"/>
+          </body>
+        </body>
+      </body>
+      <body name="right_index_proximal_link" pos="0.122376 -0.0021181 0.029568" quat="0.524171 0.389611 0.550255 0.520257">
+        <inertial pos="-0.00223495 3.15875e-06 0.0176402" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="right_index_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="right_index_proximal_link"/>
+        <body name="right_index_distal_link" pos="0 0 0.032">
+          <inertial pos="0.00487477 1.04787e-07 0.0174018" quat="0.986653 2.66959e-06 0.162837 -4.40589e-07" mass="0.01" diaginertia="0.00200042 0.00200042 0.002"/>
+          <joint name="right_index_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="right_index_distal_link"/>
+          <geom class="brainco_visual" pos="0.011097 0 0.035739" quat="0.971859 0 0.235565 0" mesh="right_index_tip"/>
+        </body>
+      </body>
+      <body name="right_middle_proximal_link" pos="0.126493 -0.0045767 0.010051" quat="0.483518 0.438557 0.540601 0.530687">
+        <inertial pos="-0.00222511 5.25632e-06 0.0203008" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="right_middle_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="right_middle_proximal_link"/>
+        <body name="right_middle_distal_link" pos="0 0 0.037">
+          <inertial pos="0.00574351 2.8872e-07 0.0200831" quat="0.986987 6.63658e-06 0.160797 -1.08121e-06" mass="0.01" diaginertia="0.00200051 0.00200051 0.002"/>
+          <joint name="right_middle_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="right_middle_distal_link"/>
+          <geom class="brainco_visual" pos="0.012558 0 0.040442" quat="0.971859 0 0.235565 0" mesh="right_middle_tip"/>
+        </body>
+      </body>
+      <body name="right_ring_proximal_link" pos="0.125482 -0.0046709 -0.010037" quat="0.438846 0.483813 0.530448 0.540337">
+        <inertial pos="-0.00234495 5.87955e-06 0.0191774" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="right_ring_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="right_ring_proximal_link"/>
+        <body name="right_ring_distal_link" pos="0 0 0.035">
+          <inertial pos="0.00546814 -2.17666e-08 0.0194739" quat="0.986645 0 0.162886 0" mass="0.01" diaginertia="0.0020005 0.0020005 0.002"/>
+          <joint name="right_ring_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="right_ring_distal_link"/>
+          <geom class="brainco_visual" pos="0.012266 0 0.039501" quat="0.971859 0 0.235565 0" mesh="right_ring_tip"/>
+        </body>
+      </body>
+      <body name="right_pinky_proximal_link" pos="0.120194 -0.0023566 -0.029366" quat="0.390269 0.52487 0.519763 0.549589">
+        <inertial pos="-0.00213212 7.75039e-06 0.0160672" mass="0.009" diaginertia="0.001 0.001 0.001"/>
+        <joint name="right_pinky_proximal_joint" axis="0 1 0" range="0 1.4661" actuatorfrcrange="-2 2"/>
+        <geom class="brainco_visual" mesh="right_pinky_proximal_link"/>
+        <body name="right_pinky_distal_link" pos="0 0 0.029">
+          <inertial pos="0.00460928 -1.0686e-07 0.0159884" quat="0.987221 -2.95744e-06 0.159356 4.77387e-07" mass="0.01" diaginertia="0.00200035 0.00200035 0.002"/>
+          <joint name="right_pinky_distal_joint" axis="0 1 0" range="0 1.693" actuatorfrcrange="-2 2"/>
+          <geom class="brainco_visual" mesh="right_pinky_distal_link"/>
+          <geom class="brainco_visual" pos="0.010221 0 0.032918" quat="0.971859 0 0.235565 0" mesh="right_pinky_tip"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

@@ -13,17 +13,21 @@ from torch.utils.data import DataLoader
 from projects.hme.model import PeriodicAutoencoder
 from projects.hme.dataset import PAEDataset, compute_win_len
 
+# Share tensors via the filesystem instead of file descriptors so many
+# DataLoader workers don't exhaust the open-fd limit (avoids the pin_memory
+# "Connection refused" crash on large corpora).
+torch.multiprocessing.set_sharing_strategy("file_system")
+
 
 @dataclass
 class PAETrainConfig:
     mocap_dir: str = "storage/mocap/amass_train_convert"
     hme_ckpt: str = "storage/hme_ckpt/amass.pt"
-    batch_size: int = 128
-    num_workers: int = 64
+    batch_size: int = 1024
+    num_workers: int = 8
     lr: float = 1e-3
     weight_decay: float = 1e-4
-    num_epochs: int = 50
-    freq_save: int = 10
+    num_epochs: int = 5
     max_grad_norm: float = 10.0
     log_path: str = "storage/hme_log"
     device: str = "cuda:0"
@@ -73,6 +77,7 @@ def train_pae(config: PAETrainConfig) -> list:
         num_workers=config.num_workers,
         pin_memory=True,
         drop_last=True,
+        persistent_workers=config.num_workers > 0,
     )
 
     # Model

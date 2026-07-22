@@ -17,11 +17,12 @@ dependencies = [
     "dm_tree", "pygame", "tyro", "tqdm",
     "loop_rate_limiters", "colorlog", "pillow",
     "opencv-python==4.11.0.86", "imageio", "imageio-ffmpeg",
+    "mink==1.1.0", "rich",
 ]
 
 [project.optional-dependencies]
 cuda = [
-    "jax-cuda12-plugin==0.8.0", "onnxruntime-gpu",
+    "jax-cuda12-plugin==0.8.0", "onnxruntime-gpu<1.24",
     "scikit-learn", "pandas", "matplotlib",
     "gradio==6.11.0", "ipdb", "httpx[socks]", "PyOpenGL-accelerate",
 ]
@@ -31,7 +32,7 @@ cpu = [
 ]
 
 [tool.setuptools]
-packages = ["scripts", "tracking", "utils", "deploy", "projects"]
+packages = ["scripts", "tracking", "utils", "deploy", "projects", "gmr"]
 
 [tool.ruff]
 line-length = 88  # Matches Black's default

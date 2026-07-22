@@ -4,18 +4,18 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 
-# ================= 配置区域 =================
+# ================= Configuration =================
 SCORE_JSON = "storage/gqs_score/amass.json"
 CLASS_JSON = "storage/configs/amass_n20.json"
 
-# 当前的权重设置 (请根据 score_multi_gpu_faster.py 保持一致)
+# Calibrated weights (must match the scoring formula in physics_filter.py)
 WEIGHTS = {
-    "foot_sliding": 1.0,
-    "velocity_violation": 5,
-    "self_collision": 0.01,
-    "jerk": 0.01,
-    "penetration": 10.0,
-    "floating_frames_ratio": 200.0
+    "foot_sliding": 1.70,
+    "velocity_violation": 44.22,
+    "self_collision": 0.17,
+    "jerk": 0.28,
+    "penetration": 216.62,
+    "floating_frames_ratio": 24.19
 }
 # ===========================================
 
@@ -29,7 +29,7 @@ def load_data():
     with open(CLASS_JSON, 'r') as f:
         class_data = json.load(f)
 
-    # 建立 filename -> class_id 的映射
+    # Build filename -> class_id mapping
     file_to_class = {}
     for cid, paths in class_data.items():
         for p in paths:
@@ -39,12 +39,12 @@ def load_data():
     return details, file_to_class, class_data
 
 def calculate_deductions(metrics, weights):
-    """计算单项扣分"""
+    """Compute per-metric score deductions."""
     deductions = {}
     total_deduction = 0.0
     for k, w in weights.items():
         val = metrics.get(k, 0.0)
-        # 异常值处理：如果是 None 或 inf，设为 0 或跳过
+        # Handle invalid values: treat None or non-finite as 0
         if val is None or not np.isfinite(val):
             val = 0.0
         score_loss = val * w
@@ -53,14 +53,14 @@ def calculate_deductions(metrics, weights):
     return deductions, total_deduction
 
 def analyze_group(group_name, metrics_list):
-    """分析一组数据的统计信息"""
+    """Compute summary statistics for a group of samples."""
     if not metrics_list:
         return None
 
     stats = {}
     n = len(metrics_list)
 
-    # 将 list of dicts 转为 dict of lists 方便 numpy 计算
+    # Convert list of dicts to dict of lists for easy numpy computation
     # data_by_key: {'foot_sliding': [0.1, 0.2, ...], ...}
     data_by_key = defaultdict(list)
     total_deductions = []
@@ -71,24 +71,24 @@ def analyze_group(group_name, metrics_list):
         for k, v in deds.items():
             data_by_key[k].append(v)
 
-    # 计算该组的总扣分均值，用于计算占比
+    # Mean total deduction for this group, used to compute contribution ratios
     avg_total_loss = np.mean(total_deductions)
-    if avg_total_loss < 1e-6: avg_total_loss = 1e-6 # 避免除零
+    if avg_total_loss < 1e-6: avg_total_loss = 1e-6 # Avoid division by zero
 
     summary = []
     for k in WEIGHTS.keys():
         arr = np.array(data_by_key[k])
 
-        # 1. 扣分率: 扣分 > 0.001 的比例
+        # 1. Penalty rate: fraction of samples with deduction > 0.001
         penalty_rate = np.mean(arr > 0.001) * 100
 
-        # 2. 扣分均值
+        # 2. Mean deduction
         mean_deduction = np.mean(arr)
 
-        # 3. 扣分最大值
+        # 3. Max deduction
         max_deduction = np.max(arr)
 
-        # 4. 贡献占比 (该项平均扣分 / 总平均扣分)
+        # 4. Contribution ratio (this metric's mean deduction / total mean deduction)
         contribution = (mean_deduction / avg_total_loss) * 100
 
         summary.append({
@@ -108,7 +108,7 @@ def main():
 
     details, file_to_class, class_data = load_data()
 
-    # 1. 准备数据容器
+    # 1. Prepare data containers
     all_metrics = []
     class_metrics = defaultdict(list)
 
@@ -128,16 +128,16 @@ def main():
     print(f"Files matched to classes: {len(details) - missing_class_count}")
     print("-" * 60)
 
-    # 2. 全局分析
+    # 2. Overall analysis
     print("\n=== [Overall Dataset Statistics] ===")
     df_all = analyze_group("Overall", all_metrics)
     print(df_all.to_string(index=False))
 
-    # 3. 类别分析 (按 Class ID 排序)
+    # 3. Per-class analysis (sorted by Class ID)
     sorted_cids = sorted(class_metrics.keys(), key=lambda x: int(x) if x.isdigit() else x)
 
-    # 为了防止输出太长，我们可以把结果汇总到一个大表格里，或者逐个打印
-    # 这里选择：打印每个类的 "Top Contributor" (扣分最多的项) 和简要信息
+    # To keep the output compact, print each class's "Top Contributor"
+    # (the largest-deduction metric) along with brief information.
 
     print("\n\n=== [Per-Class Breakdown] ===")
     print(f"{'Class ID':<10} | {'Files':<6} | {'Avg Score Loss':<15} | {'Main Penalty Source (Contrib %)'}")
@@ -152,11 +152,10 @@ def main():
 
         avg_loss = np.mean(deds_list)
 
-        # 简单分析该类
+        # Analyze this class
         df = analyze_group(cid, mets)
-        # 找到 Contribution 最大的项
-        # 需要解析 string百分比回 float 排序，或者直接在 analyze_group 里返回数值
-        # 这里简单处理：重新算一下 mean deduction 最大的
+        # Find the metric with the largest contribution by recomputing the
+        # largest mean deduction directly (simpler than parsing the string table)
         sums = {}
         for k in WEIGHTS.keys():
             vals = [calculate_deductions(m, WEIGHTS)[0][k] for m in mets]
@@ -167,7 +166,7 @@ def main():
 
         print(f"{cid:<10} | {len(mets):<6} | {avg_loss:<15.2f} | {main_source} ({main_contrib:.1f}%)")
 
-    # 如果需要查看某个特定类的详细表格，可以在这里修改代码指定打印
+    # To inspect the detailed table for a specific class, enable the lines below
     # print("\nDetailed Stats for Class '0':")
     # print(analyze_group("0", class_metrics['0']).to_string(index=False))
 

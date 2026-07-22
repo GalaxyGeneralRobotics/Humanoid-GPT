@@ -129,7 +129,7 @@ def visualize_qpos(
     qpos = np.asarray(qpos, dtype=np.float32)
     qpos = pad_qpos(qpos)
 
-    mj_model = mujoco.MjModel.from_xml_path(xml_path)
+    mj_model = consts.load_mj_model(xml_path)
     mj_data = mujoco.MjData(mj_model)
 
     qpos_ids = get_qpos_ids(mj_model, ACTION_JOINT_NAMES)
