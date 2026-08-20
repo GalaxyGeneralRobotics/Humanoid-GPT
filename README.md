@@ -97,10 +97,10 @@ A pre-trained tracking policy (`.onnx`) and a sample trajectory under
 python -m scripts.app
 
 # Track a single motion / a folder of motions
-python -m scripts.inference --onnx_track storage/ckpts/pns_wo_priv216.onnx --track_dir storage/test
+python -m scripts.inference --onnx_track storage/ckpts/pns_wo_priv264.onnx --track_dir storage/test
 
 # Parallel evaluation over a folder of trajectories
-python -m scripts.eval_parallel --onnx_track storage/ckpts/pns_wo_priv216.onnx \
+python -m scripts.eval_parallel --onnx_track storage/ckpts/pns_wo_priv264.onnx \
     --track_dir storage/test --workers 32 --privileged
 
 # Visualize a reference trajectory

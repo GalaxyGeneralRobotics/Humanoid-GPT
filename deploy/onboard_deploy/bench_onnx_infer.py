@@ -36,7 +36,7 @@ from tracking.infer_utils import NUM_STATE
 class BenchArgs:
     """ONNX-only inference benchmark."""
 
-    onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     policy_type: str = "mlp"
     use_trt: bool = False
     num_warmup: int = 50

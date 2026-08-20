@@ -11,6 +11,7 @@ into ``GeneralMotionRetargeting.retarget(frame)``:
 """
 
 from .bvh import load_lafan1_file
+from .lafan_vendor.quality import SkeletonScaleError, validate_skeleton_scale
 from .xsens import XsensClient
 
 
@@ -27,4 +28,10 @@ def get_noitom_client(*args, **kwargs):
     return NoitomClient(*args, **kwargs)
 
 
-__all__ = ["load_lafan1_file", "XsensClient", "get_noitom_client"]
+__all__ = [
+    "load_lafan1_file",
+    "SkeletonScaleError",
+    "validate_skeleton_scale",
+    "XsensClient",
+    "get_noitom_client",
+]

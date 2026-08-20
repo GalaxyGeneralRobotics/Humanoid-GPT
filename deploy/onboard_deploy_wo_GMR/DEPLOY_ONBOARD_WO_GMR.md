@@ -193,7 +193,7 @@ include the WiFi flight time).  Anything below ~5 ms is healthy.
 sudo jetson_clocks
 
 python -m deploy.onboard_deploy_wo_GMR.play_track_onboard_wo_GMR \
-    --onnx-track storage/ckpts/pns_wo_priv216.onnx
+    --onnx-track storage/ckpts/pns_wo_priv264.onnx
 ```
 
 Useful flags (the policy / DDS / hand flags are unchanged from the original
@@ -221,7 +221,7 @@ python -m deploy.onboard_deploy_wo_GMR.host_sender \
 sudo jetson_clocks
 
 python -m deploy.onboard_deploy_wo_GMR.play_track_onboard_wo_GMR_brainco \
-    --onnx-track storage/ckpts/pns_wo_priv216.onnx
+    --onnx-track storage/ckpts/pns_wo_priv264.onnx
 ```
 
 Extra flags specific to the BrainCo build:

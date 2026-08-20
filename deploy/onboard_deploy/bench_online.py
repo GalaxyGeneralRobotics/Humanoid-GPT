@@ -74,7 +74,7 @@ from utils.transforms_np import quat2mat
 class BenchArgs:
     """Full-pipeline benchmark on a connected G1 (real DDS, real sensors)."""
 
-    onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     policy_type: str = "mlp"
     use_trt: bool = True
     num_warmup: int = 50

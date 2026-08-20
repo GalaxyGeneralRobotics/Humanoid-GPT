@@ -37,7 +37,7 @@ if sys.platform.startswith("linux"):
 
 @dataclass
 class ParallelEvalArgs(Args):
-    onnx_track: str = "storage/ckpt/amass.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     track_dir: str = "storage/test/1"
     privileged: bool = False
     num_envs: int = 1

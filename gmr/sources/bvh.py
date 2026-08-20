@@ -12,6 +12,7 @@ from scipy.spatial.transform import Rotation as R
 from . import lafan_vendor as _lv
 from .lafan_vendor import utils
 from .lafan_vendor.extract import read_bvh
+from .lafan_vendor.quality import validate_skeleton_scale
 
 
 def load_lafan1_file(bvh_file, pns=False):
@@ -27,6 +28,7 @@ def load_lafan1_file(bvh_file, pns=False):
         {body_name: (position[3], orientation_wxyz[4])}.
     """
     data = read_bvh(bvh_file, pns=pns)
+    validate_skeleton_scale(data.offsets, data.bones)
     global_data = utils.quat_fk(data.quats, data.pos, data.parents)
 
     rotation_matrix = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])

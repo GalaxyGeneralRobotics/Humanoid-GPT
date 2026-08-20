@@ -40,7 +40,7 @@ from tracking.metrics import (
 
 @dataclass
 class InferenceArgs(Args):
-    onnx_track: str = "storage/ckpt/amass.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     track_dir: str = "storage/test"
     privileged: bool = False
     video_path: str = None

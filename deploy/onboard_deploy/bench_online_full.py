@@ -74,7 +74,7 @@ from deploy.onboard_deploy.play_track_onboard import LiveRefConverter
 class BenchArgs:
     """Full-pipeline benchmark with GMR subprocess on a connected G1."""
 
-    onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     policy_type: str = "mlp"
     use_trt: bool = True
     num_warmup: int = 50

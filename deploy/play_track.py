@@ -770,7 +770,7 @@ def run_real(args: "DeployArgs"):
 class DeployArgs:
     onnx_walk: str = "storage/ckpts/G1-Walk/07140632_G1-Walk_v2.0.0_baseline.onnx"
     track_dir: str = "storage/test"
-    onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     convert_xml_path: str = str(consts.TRACK_XML)
     real: bool = False
     debug: bool = False

@@ -921,7 +921,7 @@ class OnboardArgs:
 
     # Policy paths
     onnx_walk: str = "storage/ckpts/G1-Walk/07140632_G1-Walk_v2.0.0_baseline.onnx"
-    onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     track_dir: str = "storage/test"
     convert_xml_path: str = str(consts.TRACK_XML)
 

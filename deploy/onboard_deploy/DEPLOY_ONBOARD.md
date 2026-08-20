@@ -314,7 +314,7 @@ The startup sequence uses the wireless remote for safety:
 | `--debug`        | `False`                             | Dry run — no motor commands published |
 | `--use-trt`      | `True`                              | Use TensorRT for inference            |
 | `--onnx-walk`    | `storage/ckpts/G1-Walk/...onnx`     | Walk policy path                      |
-| `--onnx-track`   | `storage/ckpts/pns_wo_priv216.onnx` | Tracking policy path                  |
+| `--onnx-track`   | `storage/ckpts/pns_wo_priv264.onnx` | Tracking policy path                  |
 | `--track-dir`    | `storage/test`                   | Offline trajectory folder             |
 | `--no-mocap`     | `False`                             | Disable online motion capture         |
 | `--mocap-type`   | `pnlink`                            | `pnlink` or `xsens`                   |

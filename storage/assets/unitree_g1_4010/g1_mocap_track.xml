@@ -24,58 +24,58 @@
       </default>
       <default class="hip">
         <default class="hip_pitch">
-          <joint range="-2.5307 2.8798" actuatorfrcrange="-88 88" armature="0.0101775"/>
+          <joint range="-1.55 1.55" actuatorfrcrange="-88 88" armature="0.0101775"/>
         </default>
         <default class="hip_roll">
           <joint actuatorfrcrange="-139 139" armature="0.0251019"/>
         </default>
         <default class="hip_yaw">
-          <joint range="-2.7576 2.7576" actuatorfrcrange="-88 88" armature="0.0101775"/>
+          <joint range="-1.55 1.55" actuatorfrcrange="-88 88" armature="0.0101775"/>
         </default>
       </default>
       <default class="knee">
-        <joint range="-0.087267 2.8798" actuatorfrcrange="-139 139" armature="0.0251019"/>
+        <joint range="-0.067267 2.8598" actuatorfrcrange="-139 139" armature="0.0251019"/>
       </default>
       <default class="ankle">
         <default class="ankle_pitch">
-          <joint range="-0.87267 0.5236" actuatorfrcrange="-50 50" armature="0.00721945"/>
+          <joint range="-0.85267 0.5036" actuatorfrcrange="-50 50" armature="0.00721945"/>
         </default>
         <default class="ankle_roll">
-          <joint range="-0.2618 0.2618" actuatorfrcrange="-50 50" armature="0.00721945"/>
+          <joint range="-0.2418 0.2418" actuatorfrcrange="-50 50" armature="0.00721945"/>
         </default>
       </default>
       <default class="waist_yaw">
-        <joint range="-2.618 2.618" actuatorfrcrange="-88 88" armature="0.0101775"/>
+        <joint range="-1.55 1.55" actuatorfrcrange="-88 88" armature="0.0101775"/>
       </default>
       <default class="waist_pitch">
-        <joint range="-0.52 0.52" actuatorfrcrange="-50 50" armature="0.00721945"/>
+        <joint range="-0.5 0.5" actuatorfrcrange="-50 50" armature="0.00721945"/>
       </default>
       <default class="waist_roll">
-        <joint range="-0.52 0.52" actuatorfrcrange="-50 50" armature="0.00721945"/>
+        <joint range="-0.5 0.5" actuatorfrcrange="-50 50" armature="0.00721945"/>
       </default>
       <default class="shoulder">
         <default class="shoulder_pitch">
-          <joint range="-3.0892 2.6704" actuatorfrcrange="-25 25" armature="0.00360972"/>
+          <joint range="-3.0692 1.129" actuatorfrcrange="-25 25" armature="0.00360972"/>
         </default>
         <default class="shoulder_roll">
           <joint actuatorfrcrange="-25 25" armature="0.00360972"/>
         </default>
         <default class="shoulder_yaw">
-          <joint range="-2.618 2.618" actuatorfrcrange="-25 25" armature="0.00360972"/>
+          <joint range="-1.38 1.98" actuatorfrcrange="-25 25" armature="0.00360972"/>
         </default>
       </default>
       <default class="elbow">
-        <joint range="-1.0472 2.0944" actuatorfrcrange="-25 25" armature="0.00360972"/>
+        <joint range="-1.0272 1.68" actuatorfrcrange="-25 25" armature="0.00360972"/>
       </default>
       <default class="wrist">
         <default class="wrist_roll">
-          <joint range="-1.97222 1.97222" actuatorfrcrange="-25 25" armature="0.00360972"/>
+          <joint range="-1.95222 1.95222" actuatorfrcrange="-25 25" armature="0.00360972"/>
         </default>
         <default class="wrist_pitch">
-          <joint range="-1.61443 1.61443" actuatorfrcrange="-5 5" armature="0.00425"/>
+          <joint range="-1.59443 1.59443" actuatorfrcrange="-5 5" armature="0.00425"/>
         </default>
         <default class="wrist_yaw">
-          <joint range="-1.61443 1.61443" actuatorfrcrange="-5 5" armature="0.00425"/>
+          <joint range="-1.59443 1.59443" actuatorfrcrange="-5 5" armature="0.00425"/>
         </default>
       </default>
     </default>
@@ -137,7 +137,7 @@
         <geom class="visual" material="black" mesh="left_hip_pitch_link"/>
         <body name="left_hip_roll_link" pos="0 0.052 -0.030465" quat="0.996179 0 -0.0873386 0">
           <inertial pos="0.029812 -0.001045 -0.087934" quat="0.977808 -1.97119e-05 0.205576 -0.0403793" mass="1.52" diaginertia="0.00254986 0.00241169 0.00148755"/>
-          <joint name="left_hip_roll_joint" pos="0 0 0" axis="1 0 0" range="-0.5236 2.9671" actuatorfrcrange="-139 139" armature="0.0251019"/>
+          <joint name="left_hip_roll_joint" pos="0 0 0" axis="1 0 0" range="-0.5036 1.55" actuatorfrcrange="-139 139" armature="0.0251019"/>
           <geom class="visual" mesh="left_hip_roll_link"/>
           <geom name="left_hip_collision" class="collision" size="0.06 0.04" pos="0.02 0 -0.04"/>
           <body name="left_hip_yaw_link" pos="0.025001 0 -0.12412">
@@ -177,7 +177,7 @@
         <geom class="visual" material="black" mesh="right_hip_pitch_link"/>
         <body name="right_hip_roll_link" pos="0 -0.052 -0.030465" quat="0.996179 0 -0.0873386 0">
           <inertial pos="0.029812 0.001045 -0.087934" quat="0.977808 1.97119e-05 0.205576 0.0403793" mass="1.52" diaginertia="0.00254986 0.00241169 0.00148755"/>
-          <joint name="right_hip_roll_joint" pos="0 0 0" axis="1 0 0" range="-2.9671 0.5236" actuatorfrcrange="-139 139" armature="0.0251019"/>
+          <joint name="right_hip_roll_joint" pos="0 0 0" axis="1 0 0" range="-1.55 0.5036" actuatorfrcrange="-139 139" armature="0.0251019"/>
           <geom class="visual" mesh="right_hip_roll_link"/>
           <geom name="right_hip_collision" class="collision" size="0.06 0.04" pos="0.02 0 -0.04"/>
           <body name="right_hip_yaw_link" pos="0.025001 0 -0.12412">
@@ -235,7 +235,7 @@
               <geom class="visual" mesh="left_shoulder_pitch_link"/>
               <body name="left_shoulder_roll_link" pos="0 0.038 -0.013831" quat="0.990268 -0.139172 0 0">
                 <inertial pos="-0.000227 0.00727 -0.063243" quat="0.701256 -0.0196223 -0.00710317 0.712604" mass="0.643" diaginertia="0.000691311 0.000618011 0.000388977"/>
-                <joint name="left_shoulder_roll_joint" class="shoulder_roll" pos="0 0 0" axis="1 0 0" range="-1.5882 2.2515"/>
+                <joint name="left_shoulder_roll_joint" class="shoulder_roll" pos="0 0 0" axis="1 0 0" range="-0.58 2.2315"/>
                 <geom class="visual" mesh="left_shoulder_roll_link"/>
                 <body name="left_shoulder_yaw_link" pos="0 0.00624 -0.1032">
                   <inertial pos="0.010773 -0.002949 -0.072009" quat="0.716879 -0.0964829 -0.0679942 0.687134" mass="0.734" diaginertia="0.00106187 0.00103217 0.000400661"/>
@@ -276,11 +276,11 @@
               <geom class="visual" mesh="right_shoulder_pitch_link"/>
               <body name="right_shoulder_roll_link" pos="0 -0.038 -0.013831" quat="0.990268 0.139172 0 0">
                 <inertial pos="-0.000227 -0.00727 -0.063243" quat="0.712604 -0.00710317 -0.0196223 0.701256" mass="0.643" diaginertia="0.000691311 0.000618011 0.000388977"/>
-                <joint name="right_shoulder_roll_joint" class="shoulder_roll" pos="0 0 0" axis="1 0 0" range="-2.2515 1.5882"/>
+                <joint name="right_shoulder_roll_joint" class="shoulder_roll" pos="0 0 0" axis="1 0 0" range="-2.2315 0.58"/>
                 <geom class="visual" mesh="right_shoulder_roll_link"/>
                 <body name="right_shoulder_yaw_link" pos="0 -0.00624 -0.1032">
                   <inertial pos="0.010773 0.002949 -0.072009" quat="0.687134 -0.0679942 -0.0964829 0.716879" mass="0.734" diaginertia="0.00106187 0.00103217 0.000400661"/>
-                  <joint name="right_shoulder_yaw_joint" class="shoulder_yaw" pos="0 0 0" axis="0 0 1"/>
+                  <joint name="right_shoulder_yaw_joint" class="shoulder_yaw" pos="0 0 0" axis="0 0 1" range="-1.98 1.38"/>
                   <geom class="visual" mesh="right_shoulder_yaw_link"/>
                   <geom name="right_shoulder_yaw_collision" class="collision" size="0.035 0.065" pos="0 0 -0.015" quat="0 1 0 0"/>
                   <body name="right_elbow_link" pos="0.015783 0 -0.080518">

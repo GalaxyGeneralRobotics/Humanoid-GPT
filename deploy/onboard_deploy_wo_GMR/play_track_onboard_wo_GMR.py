@@ -33,7 +33,7 @@ Usage on the G1 (over SSH)::
 
     # On the G1:
     python -m deploy.onboard_deploy_wo_GMR.play_track_onboard_wo_GMR \\
-        --onnx-track storage/ckpts/pns_wo_priv216.onnx
+        --onnx-track storage/ckpts/pns_wo_priv264.onnx
 
 Modes are the same as ``play_track_onboard``:
     0 = Walk policy
@@ -448,7 +448,7 @@ class OnboardWoGmrArgs:
 
     # Policy paths
     onnx_walk: str = "storage/ckpts/G1-Walk/07140632_G1-Walk_v2.0.0_baseline.onnx"
-    onnx_track: str = "storage/ckpts/pns_wo_priv216.onnx"
+    onnx_track: str = "storage/ckpts/pns_wo_priv264.onnx"
     track_dir: str = "storage/test"
     convert_xml_path: str = str(consts.TRACK_XML)
 
